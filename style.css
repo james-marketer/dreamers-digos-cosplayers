@@ -251,3 +251,15 @@ textarea[name=character]{resize:vertical; min-height:84px}
 .card .chr{white-space:pre-line}
 
 footer{padding-bottom:80px}
+
+/* ---------- featured dreamer ---------- */
+.feat-list{display:grid; gap:20px}
+.feat{display:grid; grid-template-columns:1.3fr 1fr; background:var(--card); border:1px solid var(--gold); border-radius:24px; overflow:hidden; box-shadow:0 0 40px rgba(255,233,168,.15); backdrop-filter:blur(8px)}
+.feat-ph{position:relative; min-height:380px; background:#1a1040 center/cover; cursor:zoom-in}
+.feat-ph .badge{position:absolute; left:14px; top:14px; background:linear-gradient(90deg,#ffe9a8,#f7b8ff); color:#14082e; font-weight:700; padding:4px 14px; border-radius:999px; font-size:.85rem}
+.feat-body{padding:26px clamp(18px,3vw,34px); display:flex; flex-direction:column; justify-content:center; gap:8px}
+.feat-body h3{margin:0; font:700 1.8rem "Cinzel",serif; letter-spacing:.06em}
+.feat-body .chr{color:var(--gold); white-space:pre-line}
+.feat-body p{margin:0; color:var(--muted)}
+.feat-body .btn{align-self:flex-start; margin-top:8px}
+@media (max-width:720px){ .feat{grid-template-columns:1fr} .feat-ph{min-height:280px} }

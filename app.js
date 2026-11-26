@@ -281,3 +281,24 @@ new MutationObserver(() => { if (_ok.classList.contains('ok')) burst(); }).obser
   addEventListener('keydown', e => { if (e.key === 'Escape' && !m.hidden) close(); });
   if (location.hash === '#about') open(null);
 })();
+
+/* Featured Dreamers (set in config.js) */
+function renderFeatured() {
+  const list = ((window.DREAMERS_CONFIG || {}).FEATURED || []).filter(f => f && f.name);
+  const sec = $('#featured');
+  sec.hidden = !list.length;
+  $('#featuredList').innerHTML = list.map((f, i) => `
+    <article class="feat">
+      <div class="feat-ph" data-f="${i}" role="button" tabindex="0" aria-label="View photo of ${esc(f.name)}" style="background-image:url('${esc(f.photo)}')"><span class="badge">★ Featured</span></div>
+      <div class="feat-body">
+        <h3>${esc(f.name)}</h3>
+        ${f.character ? `<div class="chr">${esc(f.character)}</div>` : ''}
+        ${f.details ? `<p>${esc(f.details)}</p>` : ''}
+        ${/^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i.test(f.facebook || '') ? `<a class="btn small" href="${esc(f.facebook)}" target="_blank" rel="noopener noreferrer">Facebook ↗</a>` : ''}
+      </div>
+    </article>`).join('');
+  const open = e => { const p = e.target.closest('.feat-ph'); if (!p) return; lbSet = [list[+p.dataset.f].photo]; lbI = 0; lb.hidden = false; lbShow(); };
+  $('#featuredList').onclick = open;
+  $('#featuredList').onkeydown = e => { if (e.key === 'Enter') open(e); };
+}
+renderFeatured();
