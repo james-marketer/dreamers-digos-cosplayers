@@ -8,7 +8,8 @@ window.DREAMERS_CONFIG = {
   // Add one line per person: name, photo (put the file in the "featured" folder).
   // Optional extras: character, details, facebook, photos: ["a.jpg","b.jpg"]
   MEMBERS: [
-    { name: "Cheezy kei", photo: "featured/dreamer-1.jpg" }
+    { name: "Cheezy kei", photo: "featured/dreamer-1.jpg" },
+    { name: "Jett", photo: "featured/dreamer-2.jpg" }
   ],
   EMAIL: ""           // e.g. "hello@example.com"
 };
