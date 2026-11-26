@@ -9,7 +9,8 @@ window.DREAMERS_CONFIG = {
   // Optional extras: character, details, facebook, photos: ["a.jpg","b.jpg"]
   MEMBERS: [
     { name: "Cheezy kei", photo: "featured/dreamer-1.jpg" },
-    { name: "Jett", photo: "featured/dreamer-2.jpg" }
+    { name: "Jett", photo: "featured/dreamer-2.jpg" },
+    { name: "Aerix Luxen", photo: "featured/dreamer-3.jpg" }
   ],
   EMAIL: ""           // e.g. "hello@example.com"
 };
