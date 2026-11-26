@@ -84,20 +84,34 @@ function render(list) {
     </article>`).join('');
   $('#gridMsg').textContent = list.length ? '' : 'No dreamers match your search.';
 }
+function manualMembers() {
+  return ((window.DREAMERS_CONFIG || {}).MEMBERS || []).filter(m => m && m.name).map(m => ({
+    name: m.name, character: m.character || '', details: m.details || '', facebook: m.facebook || '',
+    photos: [m.photo].concat(m.photos || []).filter(Boolean)
+  }));
+}
+function showRoster() {
+  const msg = $('#gridMsg');
+  if (!members.length) { msg.textContent = URL_ ? 'No approved members yet. Be the first Dreamer!' : 'Demo mode: connect the Google Sheet backend (see README) to show approved members here.'; return; }
+  msg.textContent = '';
+  $('#count').textContent = '· ' + members.length;
+  $('#search').hidden = false;
+  render(members);
+}
 async function loadMembers() {
   const msg = $('#gridMsg');
-  if (!URL_) { msg.textContent = 'Demo mode: connect the Google Sheet backend (see README) to show approved members here.'; return; }
-  msg.textContent = 'Loading dreamers…';
+  const manual = manualMembers();
+  members = manual.slice();
+  if (manual.length) showRoster();
+  if (!URL_) { showRoster(); return; }
+  if (!manual.length) msg.textContent = 'Loading dreamers…';
   try {
     const r = await fetch(URL_ + '?action=members');
     const data = await r.json();
     if (!data.ok) throw new Error(data.error || 'Failed');
-    members = data.members;
-    if (!members.length) { msg.textContent = 'No approved members yet. Be the first Dreamer!'; return; }
-    $('#count').textContent = '· ' + members.length;
-    $('#search').hidden = false;
-    render(members);
-  } catch (e) { msg.textContent = 'Could not load members right now.'; }
+    members = manual.concat(data.members);
+    showRoster();
+  } catch (e) { if (!manual.length) msg.textContent = 'Could not load members right now.'; }
 }
 loadMembers();
 $('#search').addEventListener('input', e => {
@@ -281,24 +295,3 @@ new MutationObserver(() => { if (_ok.classList.contains('ok')) burst(); }).obser
   addEventListener('keydown', e => { if (e.key === 'Escape' && !m.hidden) close(); });
   if (location.hash === '#about') open(null);
 })();
-
-/* Featured Dreamers (set in config.js) */
-function renderFeatured() {
-  const list = ((window.DREAMERS_CONFIG || {}).FEATURED || []).filter(f => f && f.name);
-  const sec = $('#featured');
-  sec.hidden = !list.length; if (list.length) sec.classList.add('in');
-  $('#featuredList').innerHTML = list.map((f, i) => `
-    <article class="feat">
-      <div class="feat-ph" data-f="${i}" role="button" tabindex="0" aria-label="View photo of ${esc(f.name)}" style="background-image:url('${esc(f.photo)}')"><span class="badge">★ Featured</span></div>
-      <div class="feat-body">
-        <h3>${esc(f.name)}</h3>
-        ${f.character ? `<div class="chr">${esc(f.character)}</div>` : ''}
-        ${f.details ? `<p>${esc(f.details)}</p>` : ''}
-        ${/^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i.test(f.facebook || '') ? `<a class="btn small" href="${esc(f.facebook)}" target="_blank" rel="noopener noreferrer">Facebook ↗</a>` : ''}
-      </div>
-    </article>`).join('');
-  const open = e => { const p = e.target.closest('.feat-ph'); if (!p) return; lbSet = [list[+p.dataset.f].photo]; lbI = 0; lb.hidden = false; lbShow(); };
-  $('#featuredList').onclick = open;
-  $('#featuredList').onkeydown = e => { if (e.key === 'Enter') open(e); };
-}
-renderFeatured();
