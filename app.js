@@ -163,17 +163,29 @@ function showRoster() {
 async function loadMembers() {
   const msg = $('#gridMsg');
   const manual = manualMembers();
-  members = manual.slice();
-  if (manual.length) showRoster();
-  if (!URL_) { showRoster(); return; }
-  if (!manual.length) msg.textContent = 'Loading dreamers…';
+  const KEY = 'dreamers_sheet_v1';
+  const merge = extra => {
+    const have = new Set(manual.map(m => m.name.trim().toLowerCase()));
+    return manual.concat((extra || []).filter(m => m && m.name && !have.has(String(m.name).trim().toLowerCase())));
+  };
+  if (!URL_) { members = manual; showRoster(); return; }
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+  let shown = '';
+  if (cached && cached.length) { members = merge(cached); shown = JSON.stringify(members); showRoster(); }
+  else msg.textContent = 'Loading dreamers…';
   try {
-    const r = await fetch(URL_ + '?action=members');
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch(URL_ + '?action=members', { signal: ctl.signal });
+    clearTimeout(t);
     const data = await r.json();
     if (!data.ok) throw new Error(data.error || 'Failed');
-    members = manual.concat(data.members);
-    showRoster();
-  } catch (e) { if (!manual.length) msg.textContent = 'Could not load members right now.'; }
+    try { localStorage.setItem(KEY, JSON.stringify(data.members)); } catch (e) {}
+    members = merge(data.members);
+    if (JSON.stringify(members) !== shown) showRoster();
+  } catch (e) {
+    if (!shown) { members = manual; showRoster(); }
+  }
 }
 loadMembers();
 $('#search').addEventListener('input', e => {
