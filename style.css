@@ -213,3 +213,23 @@ blockquote{margin:14px 0; padding:6px 0 6px 18px; border-left:3px solid var(--go
 #top{display:block; position:absolute; top:0}
 
 .nav nav a.btn,.nav nav a.btn:hover{color:#14082e; opacity:1}
+
+/* ---------- Yume popup ---------- */
+.navlink,.linkbtn{background:none; border:0; font:inherit; color:var(--ink); opacity:.85; cursor:pointer; padding:0}
+.navlink:hover,.linkbtn:hover{opacity:1; color:var(--gold)}
+.linkbtn{color:var(--accent2); text-decoration:underline}
+footer{flex-wrap:wrap; text-align:center}
+@media (max-width:900px){ .nav nav .navlink{display:block; text-align:left; padding:12px 6px; border-bottom:1px solid var(--line); font-size:1.05rem; width:100%} }
+.modal{position:fixed; inset:0; z-index:70; background:rgba(4,2,14,.82); backdrop-filter:blur(6px); overflow-y:auto; padding:clamp(10px,3vw,40px); animation:fadein .25s}
+.modal[hidden]{display:none}
+@keyframes fadein{from{opacity:0}}
+.modal-box{position:relative; max-width:1000px; margin:0 auto; background:linear-gradient(180deg,#1a1042,#0d0826); border:1px solid var(--line); border-radius:24px; padding:clamp(18px,3vw,36px); box-shadow:0 0 60px rgba(150,100,255,.35); animation:pop .3s ease-out}
+@keyframes pop{from{transform:translateY(24px) scale(.97); opacity:0}}
+.modal-x{position:sticky; top:0; float:right; z-index:2; width:42px; height:42px; border-radius:50%; border:1px solid var(--line); background:rgba(20,12,52,.9); color:#fff; font-size:1.6rem; cursor:pointer}
+.modal-head{text-align:center; margin-bottom:24px}
+.modal-head img{height:auto; max-width:60vw}
+.modal-head h2{margin:8px 0 4px; font-size:1.8rem; letter-spacing:.08em}
+.modal .panel,.modal .block{max-width:none; margin:0 0 22px; padding-left:clamp(14px,3vw,28px); padding-right:clamp(14px,3vw,28px)}
+.modal .block{padding:0}
+.modal .panel{background:rgba(255,255,255,.04)}
+@media (prefers-reduced-motion:reduce){ .modal,.modal-box{animation:none} }

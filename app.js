@@ -266,3 +266,18 @@ function burst() {
 }
 const _ok = $('#formMsg');
 new MutationObserver(() => { if (_ok.classList.contains('ok')) burst(); }).observe(_ok, { attributes: true, attributeFilter: ['class'] });
+
+/* Yume Sanctuary popup */
+(() => {
+  const m = $('#yume'); let opener = null;
+  const open = el => { opener = el; m.hidden = false; document.body.style.overflow = 'hidden'; m.scrollTop = 0; m.querySelector('.modal-box').scrollTop = 0; m.querySelector('[data-close]').focus(); };
+  const close = () => { m.hidden = true; document.body.style.overflow = ''; if (opener) opener.focus(); };
+  document.querySelectorAll('[data-open="yume"]').forEach(b => b.addEventListener('click', () => { open(b); const n = $('#nav'); n.classList.remove('open'); $('#menu').setAttribute('aria-expanded', false); }));
+  m.addEventListener('click', e => {
+    if (e.target === m || e.target.closest('[data-close]')) return close();
+    const l = e.target.closest('a[href^="#"]');
+    if (l) { e.preventDefault(); close(); const t = document.querySelector(l.getAttribute('href')); if (t) t.scrollIntoView({ behavior: 'smooth' }); }
+  });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !m.hidden) close(); });
+  if (location.hash === '#about') open(null);
+})();
