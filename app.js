@@ -157,22 +157,47 @@ function showRoster() {
   if (!members.length) { msg.textContent = URL_ ? 'No approved members yet. Be the first Dreamer!' : 'Demo mode: connect the Google Sheet backend (see README) to show approved members here.'; return; }
   msg.textContent = '';
   $('#count').textContent = '· ' + members.length;
-  $('#search').hidden = false;
+  $('#search').hidden = !!(boardRows && boardRows.length);
   render(members);
+}
+const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+let boardRows = null, totalAll = 0;   // boardRows null = ranking not available yet
+function applyRanking(all, ranking) {
+  boardRows = null;
+  if (!Array.isArray(ranking)) return all;
+  const by = new Map(ranking.map(r => [norm(r.name), r]));
+  const scored = all.map(m => ({ m, r: by.get(norm(m.name)) })).filter(x => x.r && x.r.total > 0);
+  boardRows = [];
+  if (!scored.length) return all;          // nobody has points yet: show everyone
+  scored.sort((a, b) => b.r.total - a.r.total || b.r.activities - a.r.activities || a.m.name.localeCompare(b.m.name));
+  const top = scored.slice(0, 7);
+  boardRows = top.map(x => ({ name: x.m.name, photo: x.m.photos[0] || '', total: x.r.total }));
+  return top.map(x => x.m);
+}
+function renderBoard(totalCount) {
+  const ol = $('#board'), msg = $('#boardMsg');
+  if (!ol) return;
+  const ranked = boardRows && boardRows.length;
+  ol.innerHTML = ranked ? boardRows.map((r, i) => `<li><span class="rk">${i + 1}</span><span class="av" style="background-image:url('${esc(r.photo)}')"></span><span class="nm">${esc(r.name)}</span><span class="pt">${r.total} pts</span></li>`).join('') : '';
+  msg.textContent = ranked ? '' : 'Rankings will appear here once points are recorded.';
+  $('#memSub').textContent = ranked ? 'The 7 most active Dreamers right now.' : 'Approved members of Digos Cosplayers.';
+  if (ranked) $('#count').textContent = '· Top ' + boardRows.length + ' of ' + totalCount;
 }
 async function loadMembers() {
   const msg = $('#gridMsg');
   const manual = manualMembers();
-  const KEY = 'dreamers_sheet_v1';
-  const merge = extra => {
-    const have = new Set(manual.map(m => m.name.trim().toLowerCase()));
-    return manual.concat((extra || []).filter(m => m && m.name && !have.has(String(m.name).trim().toLowerCase())));
+  const KEY = 'dreamers_sheet_v2';
+  const build = d => {
+    const have = new Set(manual.map(m => norm(m.name)));
+    const all = manual.concat(((d && d.members) || []).filter(m => m && m.name && !have.has(norm(m.name))));
+    members = applyRanking(all, d && d.ranking);
+    totalAll = all.length; renderBoard(totalAll);
   };
-  if (!URL_) { members = manual; showRoster(); return; }
+  if (!URL_) { build(null); showRoster(); return; }
   let cached = null;
   try { cached = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
   let shown = '';
-  if (cached && cached.length) { members = merge(cached); shown = JSON.stringify(members); showRoster(); }
+  if (cached && cached.members) { build(cached); shown = JSON.stringify(members); showRoster(); renderBoard(totalAll); }
   else msg.textContent = 'Loading dreamers…';
   try {
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 8000);
@@ -180,11 +205,12 @@ async function loadMembers() {
     clearTimeout(t);
     const data = await r.json();
     if (!data.ok) throw new Error(data.error || 'Failed');
-    try { localStorage.setItem(KEY, JSON.stringify(data.members)); } catch (e) {}
-    members = merge(data.members);
+    try { localStorage.setItem(KEY, JSON.stringify({ members: data.members, ranking: data.ranking || null })); } catch (e) {}
+    build(data);
     if (JSON.stringify(members) !== shown) showRoster();
+    renderBoard(totalAll);
   } catch (e) {
-    if (!shown) { members = manual; showRoster(); }
+    if (!shown) { build(null); showRoster(); }
   }
 }
 loadMembers();

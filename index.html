@@ -11,18 +11,18 @@
 <meta property="og:description" content="A safe place to keep your dreams. Non-profit community organization, Digos City.">
 <meta property="og:image" content="https://james-marketer.github.io/dreamers-digos-cosplayers/logo.svg">
 <meta name="twitter:card" content="summary">
-<link rel="icon" href="logo.svg?v=31" type="image/svg+xml">
+<link rel="icon" href="logo.svg?v=32" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Quicksand:wght@400;500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style.css?v=32">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <canvas id="sky" aria-hidden="true"></canvas>
 
 <header class="nav">
-  <a class="brand" href="#top"><img src="logo.svg?v=31" alt="" width="40" height="40"><span>Dreamers</span></a>
+  <a class="brand" href="#top"><img src="logo.svg?v=32" alt="" width="40" height="40"><span>Dreamers</span></a>
   <button class="menu" id="menu" aria-label="Menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
   <nav id="nav">
     <a href="#members">Dreamers</a>
@@ -36,7 +36,7 @@
 <span id="top"></span>
   <!-- HERO -->
   <section class="hero">
-    <img class="logo" src="logo.svg?v=31" alt="Dreamers logo" width="200" height="200">
+    <img class="logo" src="logo.svg?v=32" alt="Dreamers logo" width="200" height="200">
     <p class="eyebrow">a Yume Sanctuary community</p>
     <h1>DIGOS COSPLAYERS</h1>
     <p class="tag">We are the <strong>Dreamers</strong> ✦ the cosplayers of Digos City, safe to keep our dreams.</p>
@@ -55,7 +55,7 @@
 
   <section id="members" class="panel wide">
     <h2>The Dreamers <small id="count"></small></h2>
-    <p class="sub">Approved members of Digos Cosplayers.</p>
+    <p class="sub" id="memSub">Approved members of Digos Cosplayers.</p>
     <input id="search" class="search" type="search" placeholder="Search by name or character…" aria-label="Search members" hidden>
     <div id="grid" class="grid" aria-live="polite"></div>
     <div id="carCtl" class="car-ctl" hidden>
@@ -64,6 +64,22 @@
       <button type="button" id="carNext" aria-label="Next dreamer">›</button>
     </div>
     <p id="gridMsg" class="muted"></p>
+  </section>
+
+  <!-- RANKING -->
+  <section class="panel wide reveal" id="ranking">
+    <h2>Dreamer Leaderboard</h2>
+    <p class="sub">The 7 most active Dreamers are featured in the carousel above. Stay active to climb the ranks!</p>
+    <ol id="board" class="board"></ol>
+    <p id="boardMsg" class="muted"></p>
+    <h3>How to earn points</h3>
+    <div class="pts">
+      <div><b>+10</b><span>Join a face-to-face community activity</span></div>
+      <div><b>+2</b><span>Share one of our activity posts (must be public)</span></div>
+      <div><b>+1</b><span>Chat in the group chat or Messenger each day</span></div>
+      <div><b>+1</b><span>Answer a poll question</span></div>
+      <div><b>+1</b><span>React to a Yume Sanctuary post</span></div>
+    </div>
   </section>
 
   <section class="block reveal" id="how">
@@ -303,7 +319,7 @@
   <button class="lbn next" aria-label="Next">›</button>
 </div>
 
-<script src="config.js?v=31"></script>
-<script src="app.js?v=31"></script>
+<script src="config.js?v=32"></script>
+<script src="app.js?v=32"></script>
 </body>
 </html>

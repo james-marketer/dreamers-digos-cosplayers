@@ -281,3 +281,16 @@ footer{padding-bottom:80px}
 
 .carousel{perspective:1100px}
 .carousel .card{transition:box-shadow .2s}
+
+/* Leaderboard */
+.board{list-style:none; margin:16px 0 22px; padding:0; display:grid; gap:10px}
+.board li{display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.05)}
+.board .rk{width:2rem; text-align:center; font:700 1.1rem "Cinzel",serif; color:var(--gold)}
+.board li:nth-child(1) .rk{font-size:1.4rem; text-shadow:0 0 14px rgba(255,233,168,.8)}
+.board .av{width:42px; height:42px; border-radius:50%; background:#2a1458 center 22%/cover; border:1px solid var(--line); flex:none}
+.board .nm{flex:1; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.board .pt{color:var(--gold); font-weight:700; white-space:nowrap}
+.pts{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px}
+.pts div{border:1px solid var(--line); border-radius:14px; padding:14px; background:rgba(255,255,255,.05); display:flex; flex-direction:column; gap:4px}
+.pts b{font:700 1.5rem "Cinzel",serif; color:var(--gold)}
+.pts span{color:var(--muted); font-size:.92rem}
