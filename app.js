@@ -2,7 +2,8 @@
 (() => {
   const c = document.getElementById('sky'), ctx = c.getContext('2d');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let w, h, dpr, stars = [], shoots = [];
+  let w, h, dpr, stars = [], shoots = [], mx = 0, my = 0, ox = 0, oy = 0;
+  addEventListener('pointermove', e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; });
   const LAYERS = [ {n:.00010, s:.25, r:.7}, {n:.00006, s:.5, r:1.1}, {n:.00003, s:.9, r:1.7} ];
 
   function resize() {
@@ -29,6 +30,7 @@
   function frame(t) {
     const dt = Math.min(t - last, 50); last = t;
     ctx.clearRect(0, 0, w, h);
+    ox += (mx - ox) * .04; oy += (my - oy) * .04;
     for (const s of stars) {
       if (!reduce) {            // slow drift to the left, slightly down (like a rotating sky)
         s.x -= s.speed * dt * 0.012; s.y += s.speed * dt * 0.003;
@@ -37,8 +39,9 @@
       const a = .45 + .55 * Math.abs(Math.sin(t / 1000 * s.tw + s.ph));
       ctx.globalAlpha = a;
       ctx.fillStyle = `hsl(${s.hue} 90% 88%)`;
-      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
-      if (s.r > 1.6) { ctx.globalAlpha = a * .25; ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 3, 0, 6.283); ctx.fill(); }
+      const px = s.x - ox * s.speed * 40, py = s.y - oy * s.speed * 40;
+      ctx.beginPath(); ctx.arc(px, py, s.r, 0, 6.283); ctx.fill();
+      if (s.r > 1.6) { ctx.globalAlpha = a * .25; ctx.beginPath(); ctx.arc(px, py, s.r * 3, 0, 6.283); ctx.fill(); }
     }
     if (!reduce) {
       next -= dt; if (next < 0) { shoot(); next = 4000 + Math.random() * 6000; }
@@ -63,33 +66,63 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
 /* Members gallery */
+let members = [];
+function render(list) {
+  const grid = $('#grid');
+  grid.innerHTML = list.map(m => `
+    <article class="card">
+      <div class="ph" data-i="${members.indexOf(m)}" style="background-image:url('${esc(m.photos[0] || '')}')" role="button" tabindex="0" aria-label="View photos of ${esc(m.name)}">
+        ${m.photos.length > 1 ? `<span class="count">+${m.photos.length - 1}</span>` : ''}
+      </div>
+      <div class="body">
+        <h3>${esc(m.name)}</h3>
+        ${m.character ? `<div class="chr">${esc(m.character)}</div>` : ''}
+        <p>${esc(m.details)}</p>
+        ${/^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i.test(m.facebook) ? `<a href="${esc(m.facebook)}" target="_blank" rel="noopener noreferrer">Facebook ↗</a>` : ''}
+      </div>
+    </article>`).join('');
+  $('#gridMsg').textContent = list.length ? '' : 'No dreamers match your search.';
+}
 async function loadMembers() {
-  const grid = $('#grid'), msg = $('#gridMsg');
+  const msg = $('#gridMsg');
   if (!URL_) { msg.textContent = 'Demo mode: connect the Google Sheet backend (see README) to show approved members here.'; return; }
   msg.textContent = 'Loading dreamers…';
   try {
     const r = await fetch(URL_ + '?action=members');
     const data = await r.json();
     if (!data.ok) throw new Error(data.error || 'Failed');
-    if (!data.members.length) { msg.textContent = 'No approved members yet. Be the first Dreamer!'; return; }
-    msg.textContent = '';
-    grid.innerHTML = data.members.map(m => `
-      <article class="card">
-        <div class="ph" style="background-image:url('${esc(m.photos[0] || '')}')">
-          ${m.photos.length > 1 ? `<span class="count">+${m.photos.length - 1}</span>` : ''}
-        </div>
-        <div class="body">
-          <h3>${esc(m.name)}</h3>
-          ${m.character ? `<div class="chr">${esc(m.character)}</div>` : ''}
-          <p>${esc(m.details)}</p>
-          ${/^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i.test(m.facebook) ? `<a href="${esc(m.facebook)}" target="_blank" rel="noopener noreferrer">Facebook ↗</a>` : ''}
-        </div>
-      </article>`).join('');
+    members = data.members;
+    if (!members.length) { msg.textContent = 'No approved members yet. Be the first Dreamer!'; return; }
+    $('#count').textContent = '· ' + members.length;
+    $('#search').hidden = false;
+    render(members);
   } catch (e) { msg.textContent = 'Could not load members right now.'; }
 }
 loadMembers();
+$('#search').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  render(members.filter(m => (m.name + ' ' + m.character).toLowerCase().includes(q)));
+});
 
-/* Photo handling: resize in the browser so uploads stay small */
+/* Photo lightbox */
+const lb = $('#lb'), lbImg = lb.querySelector('img'); let lbSet = [], lbI = 0;
+function lbShow() { lbImg.src = lbSet[lbI]; lb.querySelectorAll('.lbn').forEach(b => b.hidden = lbSet.length < 2); }
+function lbOpen(i) { lbSet = members[i].photos.map(u => u.replace('sz=w800', 'sz=w1600')); lbI = 0; lb.hidden = false; lbShow(); }
+function lbClose() { lb.hidden = true; lbImg.src = ''; }
+$('#grid').addEventListener('click', e => { const p = e.target.closest('.ph'); if (p) lbOpen(+p.dataset.i); });
+$('#grid').addEventListener('keydown', e => { if (e.key === 'Enter') { const p = e.target.closest('.ph'); if (p) lbOpen(+p.dataset.i); } });
+lb.querySelector('.lbx').onclick = lbClose;
+lb.querySelector('.prev').onclick = () => { lbI = (lbI + lbSet.length - 1) % lbSet.length; lbShow(); };
+lb.querySelector('.next').onclick = () => { lbI = (lbI + 1) % lbSet.length; lbShow(); };
+lb.addEventListener('click', e => { if (e.target === lb) lbClose(); });
+addEventListener('keydown', e => {
+  if (lb.hidden) return;
+  if (e.key === 'Escape') lbClose();
+  if (e.key === 'ArrowLeft') lb.querySelector('.prev').click();
+  if (e.key === 'ArrowRight') lb.querySelector('.next').click();
+});
+
+/* Photo handling: resize in the browser so uploads stay small; add up to 4, removable */
 const photosIn = $('#photos'), previews = $('#previews');
 let photoData = [];
 function shrink(file) {
@@ -101,18 +134,40 @@ function shrink(file) {
       cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
       URL.revokeObjectURL(u); res(cv.toDataURL('image/jpeg', .8));
     };
-    img.onerror = () => rej(new Error('Could not read ' + file.name));
+    img.onerror = () => { URL.revokeObjectURL(u); rej(new Error('Could not read ' + file.name)); };
     img.src = u;
   });
 }
+function drawPreviews() {
+  previews.innerHTML = photoData.map((d, i) => `<span class="pv"><img src="${d}" alt="Photo ${i + 1}"><button type="button" data-i="${i}" aria-label="Remove photo ${i + 1}">×</button></span>`).join('');
+}
+previews.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { photoData.splice(+b.dataset.i, 1); drawPreviews(); } });
 photosIn.addEventListener('change', async () => {
-  const files = [...photosIn.files].slice(0, 4);
-  previews.innerHTML = ''; photoData = [];
+  const files = [...photosIn.files]; photosIn.value = '';
   try {
-    for (const f of files) { const d = await shrink(f); photoData.push(d); previews.insertAdjacentHTML('beforeend', `<img src="${d}" alt="Preview">`); }
-    if (photosIn.files.length > 4) setMsg('Only the first 4 photos will be used.', '');
+    for (const f of files) {
+      if (photoData.length >= 4) { setMsg('Maximum of 4 photos.', ''); break; }
+      if (!f.type.startsWith('image/')) continue;
+      photoData.push(await shrink(f));
+    }
+    drawPreviews();
   } catch (e) { setMsg(e.message, 'err'); }
 });
+
+/* Small niceties */
+const ta = document.querySelector('textarea[name=details]'), cnt = $('#cnt');
+ta.addEventListener('input', () => cnt.textContent = ta.value.length + ' / 600');
+const ph = document.querySelector('input[name=phone]');
+ph.addEventListener('input', () => {
+  const d = ph.value.replace(/\D/g, '');
+  if (/^0\d{0,10}$/.test(d)) ph.value = d.replace(/^(\d{4})(\d{0,3})(\d{0,4}).*/, (_, a, b, c) => [a, b, c].filter(Boolean).join(' '));
+});
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 }) : null;
+document.querySelectorAll('.reveal').forEach(el => io ? io.observe(el) : el.classList.add('in'));
+const links = [...document.querySelectorAll('.nav nav a[href^="#"]:not(.btn)')];
+const so = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
+links.forEach(a => { const t = document.querySelector(a.getAttribute('href')); if (t) so.observe(t); });
+
 
 const form = $('#form'), msgEl = $('#formMsg'), btn = $('#submit');
 function setMsg(t, cls) { msgEl.textContent = t; msgEl.className = 'formmsg ' + (cls || ''); }

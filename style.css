@@ -86,3 +86,45 @@ footer p{margin:0}
 
 @media (max-width:520px){ .nav nav a:not(.btn){display:none} }
 @media (prefers-reduced-motion:reduce){ .logo{animation:none} html{scroll-behavior:auto} }
+
+/* ---------- v2 upgrades ---------- */
+body::before{
+  content:""; position:fixed; inset:-20%; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(40% 35% at 20% 25%, rgba(142,90,255,.22), transparent 70%),
+    radial-gradient(35% 30% at 80% 15%, rgba(80,160,255,.16), transparent 70%),
+    radial-gradient(45% 35% at 70% 85%, rgba(247,120,200,.15), transparent 70%);
+  animation:nebula 40s ease-in-out infinite alternate;
+}
+@keyframes nebula{to{transform:translate(4%,3%) scale(1.08)}}
+
+.reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease}
+.reveal.in{opacity:1; transform:none}
+.no-js .reveal{opacity:1; transform:none}
+
+.perks{max-width:1100px; margin:0 auto 40px; padding:0 16px; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px}
+.perk{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:22px; text-align:center; backdrop-filter:blur(8px); transition:transform .25s, border-color .25s}
+.perk:hover{transform:translateY(-4px); border-color:var(--accent)}
+.perk span{font-size:1.8rem; color:var(--gold); text-shadow:0 0 18px rgba(255,233,168,.7)}
+.perk h3{margin:6px 0; font-family:"Cinzel",serif}
+.perk p{margin:0; color:var(--muted); font-size:.95rem}
+
+h2 small{font:500 .9rem "Quicksand",sans-serif; color:var(--gold); letter-spacing:0; margin-left:6px}
+.search{margin-top:12px; max-width:360px}
+.card{transition:transform .25s, box-shadow .25s}
+.card:hover{transform:translateY(-4px); box-shadow:0 10px 30px rgba(120,70,255,.35)}
+.card .ph{cursor:zoom-in}
+.cnt{text-align:right; font-weight:400}
+
+.previews .pv{position:relative}
+.previews .pv button{position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; border:0; cursor:pointer; background:#ff6b8a; color:#fff; font-size:14px; line-height:1}
+
+.lb{position:fixed; inset:0; z-index:50; background:rgba(4,2,14,.92); display:flex; align-items:center; justify-content:center; padding:20px}
+.lb[hidden]{display:none}
+.lb img{max-width:100%; max-height:90vh; border-radius:12px; box-shadow:0 0 50px rgba(150,100,255,.4)}
+.lb button{position:absolute; background:rgba(255,255,255,.12); color:#fff; border:0; cursor:pointer; border-radius:50%; width:44px; height:44px; font-size:26px}
+.lbx{top:16px; right:16px}
+.lbn.prev{left:12px} .lbn.next{right:12px}
+
+.nav nav a.on:not(.btn){color:var(--gold); opacity:1}
+a:focus-visible,button:focus-visible{outline:2px solid var(--gold); outline-offset:3px}

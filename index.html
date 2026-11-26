@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dreamers · Digos Cosplayers · Yume Sanctuary</title>
 <meta name="description" content="Dreamers — the Digos Cosplayers community of Yume Sanctuary. Join the roster and show your cosplay.">
+<meta name="theme-color" content="#070418">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dreamers · Digos Cosplayers">
+<meta property="og:description" content="Yume Sanctuary's home for Digos cosplayers. Join the roster and show your cosplay.">
+<meta property="og:image" content="https://james-marketer.github.io/dreamers-digos-cosplayers/logo.svg">
+<meta name="twitter:card" content="summary">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,19 +42,26 @@
     </div>
   </section>
 
-  <section id="about" class="panel">
+  <section id="about" class="panel reveal">
     <h2>Yume <span>夢</span> Sanctuary</h2>
     <p>Yume means <em>dream</em>. Yume Sanctuary is a safe, welcoming home for cosplayers in Digos, and the Dreamers are the people in it. Register below with your cosplay name, a little about you, and photo proof of a past cosplay, so we can build a roster of local cosplayers and invite you to shoots, meetups and events.</p>
   </section>
 
-  <section id="members" class="panel wide">
-    <h2>The Dreamers</h2>
+  <section class="perks">
+    <div class="perk reveal"><span>✦</span><h3>Join the roster</h3><p>Get listed as an official Digos cosplayer with your own profile card.</p></div>
+    <div class="perk reveal"><span>☾</span><h3>Shoots &amp; meetups</h3><p>Be first to hear about photoshoots, conventions and community events.</p></div>
+    <div class="perk reveal"><span>❖</span><h3>A safe sanctuary</h3><p>A friendly, respectful circle where every dreamer is welcome.</p></div>
+  </section>
+
+  <section id="members" class="panel wide reveal">
+    <h2>The Dreamers <small id="count"></small></h2>
     <p class="sub">Approved members of Digos Cosplayers.</p>
+    <input id="search" class="search" type="search" placeholder="Search by name or character…" aria-label="Search members" hidden>
     <div id="grid" class="grid" aria-live="polite"></div>
     <p id="gridMsg" class="muted"></p>
   </section>
 
-  <section id="join" class="panel">
+  <section id="join" class="panel reveal">
     <h2>Join the Dreamers</h2>
     <p class="sub">Your phone number is only seen by the organizers. It is never shown on this site.</p>
     <form id="form" novalidate>
@@ -60,9 +73,10 @@
       </label>
       <label>About you *
         <textarea name="details" required maxlength="600" rows="4" placeholder="Tell us about yourself, how long you've cosplayed, favorite series…"></textarea>
+        <small id="cnt" class="cnt">0 / 600</small>
       </label>
-      <label>Proof of past cosplay * <small>(1 to 4 photos)</small>
-        <input id="photos" name="photos" type="file" accept="image/*" multiple required>
+      <label>Proof of past cosplay * <small>(1 to 4 photos, tap to add more)</small>
+        <input id="photos" type="file" accept="image/*" multiple>
       </label>
       <div id="previews" class="previews"></div>
       <label>Facebook profile link *
@@ -84,6 +98,13 @@
   <img src="logo.svg" alt="" width="28" height="28">
   <p>© <span id="yr"></span> Dreamers · Digos Cosplayers · a Yume Sanctuary community</p>
 </footer>
+
+<div id="lb" class="lb" hidden>
+  <button class="lbx" aria-label="Close">×</button>
+  <button class="lbn prev" aria-label="Previous">‹</button>
+  <img alt="Cosplay proof">
+  <button class="lbn next" aria-label="Next">›</button>
+</div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
