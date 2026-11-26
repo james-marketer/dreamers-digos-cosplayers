@@ -18,11 +18,13 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <canvas id="sky" aria-hidden="true"></canvas>
 
 <header class="nav">
   <a class="brand" href="#top"><img src="logo.svg" alt="" width="40" height="40"><span>Dreamers</span></a>
-  <nav>
+  <button class="menu" id="menu" aria-label="Menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+  <nav id="nav">
     <a href="#about">About</a>
     <a href="#mission">Mission</a>
     <a href="#event">Events</a>
@@ -33,7 +35,8 @@
   </nav>
 </header>
 
-<main id="top">
+<main id="main">
+<span id="top"></span>
   <!-- HERO -->
   <section class="hero">
     <img class="logo" src="logo.svg" alt="Dreamers logo" width="200" height="200">
@@ -220,6 +223,15 @@
     <p id="gridMsg" class="muted"></p>
   </section>
 
+  <section class="block reveal" id="how">
+    <h2>How joining works</h2>
+    <div class="steps">
+      <div class="step"><b>1</b><h3>Register</h3><p>Tell us your cosplayer name, a bit about you, and add photo proof of a past cosplay.</p></div>
+      <div class="step"><b>2</b><h3>Get approved</h3><p>Our team checks your registration and keeps your phone number private.</p></div>
+      <div class="step"><b>3</b><h3>Join the roster</h3><p>Your Dreamer card appears on this page, and you hear about shoots, meetups and events.</p></div>
+    </div>
+  </section>
+
   <section id="join" class="panel reveal">
     <h2>Join the Dreamers</h2>
     <p class="sub">Register as a Digos cosplayer. Your phone number is only seen by the organizers. It is never shown on this site.</p>
@@ -257,6 +269,8 @@
   <a href="https://www.facebook.com/yumesanctuarydigos" target="_blank" rel="noopener noreferrer"><img src="yume-sanctuary-light.png" alt="Yume Sanctuary on Facebook" width="120" height="44"></a>
   <p>© <span id="yr"></span> Yume Sanctuary · Digos Cosplayers (Dreamers) · Non-profit community organization, Digos City</p>
 </footer>
+
+<button id="toTop" class="totop" aria-label="Back to top" hidden>↑</button>
 
 <div id="lb" class="lb" hidden>
   <button class="lbx" aria-label="Close">×</button>

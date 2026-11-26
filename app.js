@@ -28,6 +28,7 @@
 
   let last = 0, next = 3000;
   function frame(t) {
+    if (document.hidden) { last = t; requestAnimationFrame(frame); return; }
     const dt = Math.min(t - last, 50); last = t;
     ctx.clearRect(0, 0, w, h);
     ox += (mx - ox) * .04; oy += (my - oy) * .04;
@@ -222,3 +223,46 @@ form.addEventListener('submit', async ev => {
   if (C.EMAIL) bits.push('<a href="mailto:' + esc(C.EMAIL) + '">' + esc(C.EMAIL) + '</a>');
   if (bits.length) { line.innerHTML = 'Reach us: ' + bits.join(' · '); line.hidden = false; }
 })();
+
+/* Mobile menu */
+(() => {
+  const m = $('#menu'), n = $('#nav');
+  const set = o => { n.classList.toggle('open', o); m.setAttribute('aria-expanded', o); };
+  m.addEventListener('click', () => set(!n.classList.contains('open')));
+  n.addEventListener('click', e => { if (e.target.closest('a')) set(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+})();
+
+/* Back to top */
+(() => {
+  const b = $('#toTop');
+  addEventListener('scroll', () => { b.hidden = scrollY < 900; }, { passive: true });
+  b.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
+})();
+
+/* Count-up numbers */
+(() => {
+  const els = document.querySelectorAll('.stats b[data-n]');
+  const plus = el => el.textContent.includes('+') ? '+' : '';
+  const io2 = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return; io2.unobserve(e.target);
+    const el = e.target, end = +el.dataset.n, sfx = plus(el), t0 = performance.now();
+    const tick = t => { const p = Math.min((t - t0) / 1200, 1); el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))) + (p === 1 ? sfx : ''); if (p < 1) requestAnimationFrame(tick); };
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; requestAnimationFrame(tick);
+  }), { threshold: .6 });
+  els.forEach(el => io2.observe(el));
+})();
+
+/* Celebration burst after a successful registration */
+function burst() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r = form.getBoundingClientRect(), cx = r.left + r.width / 2, cy = Math.min(Math.max(r.bottom - 80, 80), innerHeight - 80);
+  for (let i = 0; i < 28; i++) {
+    const s = document.createElement('span'); s.className = 'spark'; s.textContent = ['✦', '✧', '★', '☾'][i % 4];
+    const ang = Math.random() * 6.283, d = 80 + Math.random() * 170;
+    s.style.cssText = 'left:' + cx + 'px;top:' + cy + 'px;--x:' + Math.cos(ang) * d + 'px;--y:' + Math.sin(ang) * d + 'px;color:' + ['#ffe9a8', '#f7b8ff', '#8ec5ff'][i % 3];
+    document.body.appendChild(s); setTimeout(() => s.remove(), 1400);
+  }
+}
+const _ok = $('#formMsg');
+new MutationObserver(() => { if (_ok.classList.contains('ok')) burst(); }).observe(_ok, { attributes: true, attributeFilter: ['class'] });

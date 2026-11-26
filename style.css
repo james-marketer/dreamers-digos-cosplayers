@@ -188,3 +188,28 @@ blockquote{margin:14px 0; padding:6px 0 6px 18px; border-left:3px solid var(--go
 .step h3{margin:0 0 6px}
 .step ul{margin:0; padding-left:18px; color:var(--muted)}
 .step p{margin:0; color:var(--muted)}
+
+/* ---------- polish ---------- */
+.skip{position:absolute; left:-999px; top:8px; z-index:100; background:#fff; color:#14082e; padding:8px 14px; border-radius:8px}
+.skip:focus{left:8px}
+.menu{display:none; background:none; border:1px solid var(--line); border-radius:10px; padding:9px 10px; cursor:pointer}
+.menu span{display:block; width:20px; height:2px; background:var(--ink); margin:4px 0; border-radius:2px; transition:transform .2s, opacity .2s}
+.menu[aria-expanded=true] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.menu[aria-expanded=true] span:nth-child(2){opacity:0}
+.menu[aria-expanded=true] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+@media (max-width:900px){
+  .menu{display:block}
+  .nav nav{display:none; position:absolute; top:100%; left:0; right:0; flex-direction:column; align-items:stretch; gap:0; padding:8px 16px 16px; background:rgba(10,6,30,.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--line)}
+  .nav nav.open{display:flex}
+  .nav nav a, .nav nav a:not(.btn){display:block!important; padding:12px 6px; border-bottom:1px solid var(--line); font-size:1.05rem}
+  .nav nav a.btn{margin-top:12px; text-align:center; border:0; padding:12px}
+}
+.totop{position:fixed; right:16px; bottom:18px; z-index:20; width:46px; height:46px; border-radius:50%; border:1px solid var(--line); background:rgba(20,12,52,.85); color:var(--gold); font-size:1.3rem; cursor:pointer; backdrop-filter:blur(8px); box-shadow:0 0 18px rgba(197,139,255,.35)}
+.totop[hidden]{display:none}
+.spark{position:fixed; z-index:60; pointer-events:none; font-size:1.3rem; animation:spark 1.3s ease-out forwards}
+@keyframes spark{to{transform:translate(var(--x),var(--y)) rotate(200deg) scale(.4); opacity:0}}
+.hero::after{content:"scroll ↓"; display:block; margin-top:34px; color:var(--muted); font-size:.8rem; letter-spacing:.3em; text-transform:uppercase; animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(6px)}}
+#top{display:block; position:absolute; top:0}
+
+.nav nav a.btn,.nav nav a.btn:hover{color:#14082e; opacity:1}
