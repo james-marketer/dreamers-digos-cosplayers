@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dreamers · Digos Cosplayers · Yume Sanctuary</title>
+<meta name="description" content="Dreamers — the Digos Cosplayers community of Yume Sanctuary. Join the roster and show your cosplay.">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header class="nav">
+  <a class="brand" href="#top"><img src="logo.svg" alt="" width="40" height="40"><span>Dreamers</span></a>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#members">Members</a>
+    <a href="#join" class="btn small">Join</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <img class="logo" src="logo.svg" alt="Dreamers logo" width="220" height="220">
+    <p class="eyebrow">presented by</p>
+    <a class="ys" href="#about" aria-label="Yume Sanctuary"><img src="yume-sanctuary.svg" alt="Yume Sanctuary" width="260" height="89"></a>
+    <h1>DIGOS COSPLAYERS</h1>
+    <p class="tag">We are the <strong>Dreamers</strong> ✦ where every costume carries a wish.</p>
+    <div class="cta">
+      <a href="#join" class="btn">Join the Dreamers</a>
+      <a href="#members" class="btn ghost">Meet the roster</a>
+    </div>
+  </section>
+
+  <section id="about" class="panel">
+    <h2>Yume <span>夢</span> Sanctuary</h2>
+    <p>Yume means <em>dream</em>. Yume Sanctuary is a safe, welcoming home for cosplayers in Digos, and the Dreamers are the people in it. Register below with your cosplay name, a little about you, and photo proof of a past cosplay, so we can build a roster of local cosplayers and invite you to shoots, meetups and events.</p>
+  </section>
+
+  <section id="members" class="panel wide">
+    <h2>The Dreamers</h2>
+    <p class="sub">Approved members of Digos Cosplayers.</p>
+    <div id="grid" class="grid" aria-live="polite"></div>
+    <p id="gridMsg" class="muted"></p>
+  </section>
+
+  <section id="join" class="panel">
+    <h2>Join the Dreamers</h2>
+    <p class="sub">Your phone number is only seen by the organizers. It is never shown on this site.</p>
+    <form id="form" novalidate>
+      <label>Cosplayer Name *
+        <input name="name" required maxlength="80" autocomplete="nickname" placeholder="e.g. Hikari">
+      </label>
+      <label>Past cosplay (character / series)
+        <input name="character" maxlength="120" placeholder="e.g. Nezuko Kamado — Demon Slayer">
+      </label>
+      <label>About you *
+        <textarea name="details" required maxlength="600" rows="4" placeholder="Tell us about yourself, how long you've cosplayed, favorite series…"></textarea>
+      </label>
+      <label>Proof of past cosplay * <small>(1 to 4 photos)</small>
+        <input id="photos" name="photos" type="file" accept="image/*" multiple required>
+      </label>
+      <div id="previews" class="previews"></div>
+      <label>Facebook profile link *
+        <input name="facebook" type="url" required placeholder="https://facebook.com/your.profile">
+      </label>
+      <label>Phone number *
+        <input name="phone" type="tel" required inputmode="tel" placeholder="09xx xxx xxxx" autocomplete="tel">
+      </label>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label class="check"><input type="checkbox" name="consent" required>
+        <span>I agree that my name, details, photos and Facebook link may be shown on this page once approved. My phone number stays private.</span></label>
+      <button class="btn" id="submit" type="submit">Send my dream ✦</button>
+      <p id="formMsg" class="formmsg" role="status"></p>
+    </form>
+  </section>
+</main>
+
+<footer>
+  <img src="logo.svg" alt="" width="28" height="28">
+  <p>© <span id="yr"></span> Dreamers · Digos Cosplayers · a Yume Sanctuary community</p>
+</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

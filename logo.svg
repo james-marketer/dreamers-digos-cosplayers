@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Dreamers logo">
+  <defs>
+    <linearGradient id="moon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff3c4"/>
+      <stop offset="1" stop-color="#f7b8ff"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8ec5ff"/>
+      <stop offset="1" stop-color="#c58bff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#b58cff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#b58cff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="120" cy="120" r="115" fill="url(#glow)"/>
+  <circle cx="120" cy="120" r="92" fill="#120a2e" stroke="url(#ring)" stroke-width="4"/>
+  <circle cx="120" cy="120" r="82" fill="none" stroke="url(#ring)" stroke-width="1" stroke-dasharray="2 7" stroke-linecap="round"/>
+  <!-- crescent moon -->
+  <path d="M140 64 A60 60 0 1 0 140 176 A80 80 0 1 1 140 64 Z" fill="url(#moon)"/>
+  <!-- big four-point star -->
+  <path d="M150 88 L155 107 L174 112 L155 117 L150 136 L145 117 L126 112 L145 107 Z" fill="#fff"/>
+  <!-- small stars -->
+  <path d="M170 74 l2.2 6 6 2.2 -6 2.2 -2.2 6 -2.2 -6 -6 -2.2 6 -2.2z" fill="#ffe9a8"/>
+  <path d="M110 150 l1.6 4.4 4.4 1.6 -4.4 1.6 -1.6 4.4 -1.6 -4.4 -4.4 -1.6 4.4 -1.6z" fill="#cfe4ff"/>
+  <circle cx="178" cy="150" r="2.4" fill="#fff"/>
+  <circle cx="92" cy="86" r="1.8" fill="#fff"/>
+  <!-- ribbon -->
+  <path d="M34 190 Q120 232 206 190 L206 212 Q120 252 34 212 Z" fill="url(#ring)" opacity=".0"/>
+</svg>
