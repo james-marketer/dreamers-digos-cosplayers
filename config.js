@@ -11,6 +11,14 @@ window.DREAMERS_CONFIG = {
     { name: "Neko Hime", photo: "featured/dreamer-6.jpg" },
     { name: "J.E.M.", photo: "featured/dreamer-9.jpg" }
   ],
+  // Profile avatars for sheet members: which photo should come first.
+  // A number = move that photo (1 = first, 2 = second...) to the front. A file path = show that picture first.
+  AVATARS: {
+    "Jett": 4,
+    "Cheezy kei": 2,
+    "Redfyrr": 3,
+    "Salome Mayo": "featured/dreamer-10.jpg"
+  },
   // Points ranking (leaderboard + top-7 carousel). Set RANKING_ACTIVE to false to switch it off.
   RANKING_ACTIVE: true,
   // Dry run: while the sheet has no points, show sample points (labelled "Preview"). Set false to use real points only.

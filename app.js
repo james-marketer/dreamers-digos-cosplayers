@@ -239,7 +239,15 @@ async function loadMembers() {
   const KEY = 'dreamers_sheet_v2';
   const build = d => {
     const have = new Set(manual.map(m => norm(m.name)));
-    const all = manual.concat(((d && d.members) || []).filter(m => m && m.name && !have.has(norm(m.name))));
+    const av = new Map(Object.entries(CFG.AVATARS || {}).map(([k, v]) => [norm(k), v]));
+    const pick = m => {
+      const v = av.get(norm(m.name)); if (!v) return m;
+      const ph = (m.photos || []).slice();
+      if (typeof v === 'number') { if (v >= 1 && v <= ph.length) ph.unshift(ph.splice(v - 1, 1)[0]); }
+      else ph.unshift(v);
+      return Object.assign({}, m, { photos: ph });
+    };
+    const all = manual.concat(((d && d.members) || []).filter(m => m && m.name && !have.has(norm(m.name))).map(pick));
     allList = all;
     members = applyRanking(all, d && d.ranking);
     const ab = $('#allBtn'); ab.hidden = !all.length; ab.textContent = 'View all Dreamers (' + all.length + ')';
