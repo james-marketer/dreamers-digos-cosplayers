@@ -161,18 +161,32 @@ function showRoster() {
   render(members);
 }
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-let boardRows = null, totalAll = 0;   // boardRows null = ranking not available yet
-const RANKING_ON = !!(window.DREAMERS_CONFIG || {}).RANKING_ACTIVE;   // switch lives in config.js
+let boardRows = null, totalAll = 0, boardDemo = false;   // boardRows null = ranking not available yet
+const CFG = window.DREAMERS_CONFIG || {};
+const RANKING_ON = !!CFG.RANKING_ACTIVE;   // switch lives in config.js
+// Dry-run sample points (only used when the sheet has no points yet and RANKING_DEMO is true)
+function demoRanking(all) {
+  return all.map(m => {
+    let h = 7; for (const c of m.name) h = (h * 31 + c.charCodeAt(0)) % 9973;
+    const o = { name: m.name, chat: 4 + h % 21, shares: h % 6, activities: h % 4, polls: h % 5, reactions: h % 9 };
+    o.total = o.chat + o.shares * 2 + o.activities * 10 + o.polls + o.reactions;
+    return o;
+  });
+}
 function applyRanking(all, ranking) {
-  boardRows = null;
-  if (!RANKING_ON || !Array.isArray(ranking)) return all;
+  boardRows = null; boardDemo = false;
+  if (!RANKING_ON) return all;
+  if (!(Array.isArray(ranking) && ranking.some(r => r.total > 0))) {
+    if (!CFG.RANKING_DEMO) { boardRows = []; return all; }   // nobody has points yet: show everyone
+    ranking = demoRanking(all); boardDemo = true;
+  }
   const by = new Map(ranking.map(r => [norm(r.name), r]));
   const scored = all.map(m => ({ m, r: by.get(norm(m.name)) })).filter(x => x.r && x.r.total > 0);
   boardRows = [];
-  if (!scored.length) return all;          // nobody has points yet: show everyone
+  if (!scored.length) return all;
   scored.sort((a, b) => b.r.total - a.r.total || b.r.activities - a.r.activities || a.m.name.localeCompare(b.m.name));
   const top = scored.slice(0, 7);
-  boardRows = top.map(x => ({ name: x.m.name, photo: x.m.photos[0] || '', total: x.r.total }));
+  boardRows = top.map(x => ({ name: x.m.name, photo: x.m.photos[0] || '', total: x.r.total, act: x.r.activities, sh: x.r.shares, chat: x.r.chat, polls: x.r.polls, rx: x.r.reactions }));
   return top.map(x => x.m);
 }
 function renderBoard(totalCount) {
@@ -181,9 +195,11 @@ function renderBoard(totalCount) {
   $('#ranking').hidden = !RANKING_ON;
   if (!RANKING_ON) return;
   const ranked = boardRows && boardRows.length;
-  ol.innerHTML = ranked ? boardRows.map((r, i) => `<li><span class="rk">${i + 1}</span><span class="av" style="background-image:url('${esc(r.photo)}')"></span><span class="nm">${esc(r.name)}</span><span class="pt">${r.total} pts</span></li>`).join('') : '';
-  msg.textContent = ranked ? '' : 'Rankings will appear here once points are recorded.';
-  $('#memSub').textContent = ranked ? 'The 7 most active Dreamers right now.' : 'Approved members of Digos Cosplayers.';
+  const medal = ['🥇', '🥈', '🥉'], max = ranked ? boardRows[0].total : 1;
+  const parts = r => [r.act && r.act + ' activit' + (r.act > 1 ? 'ies' : 'y'), r.sh && r.sh + ' share' + (r.sh > 1 ? 's' : ''), r.chat && r.chat + ' chat day' + (r.chat > 1 ? 's' : ''), r.polls && r.polls + ' poll' + (r.polls > 1 ? 's' : ''), r.rx && r.rx + ' reaction' + (r.rx > 1 ? 's' : '')].filter(Boolean).join(' · ');
+  ol.innerHTML = ranked ? boardRows.map((r, i) => `<li class="r${i + 1}"><span class="rk">${medal[i] || i + 1}</span><span class="av" style="background-image:url('${esc(r.photo)}')"></span><span class="mid"><span class="nm">${esc(r.name)}</span><span class="bd">${esc(parts(r))}</span><span class="bar"><i style="width:${Math.max(6, Math.round(r.total / max * 100))}%"></i></span></span><span class="pt">${r.total} pts</span></li>`).join('') : '';
+  msg.textContent = ranked ? (boardDemo ? 'Preview mode: these are sample points while we test the ranking. Real points will replace them.' : '') : 'Rankings will appear here once points are recorded.';
+  $('#memSub').textContent = ranked ? (boardDemo ? 'Preview: the 7 most active Dreamers (sample points).' : 'The 7 most active Dreamers right now.') : 'Approved members of Digos Cosplayers.';
   if (ranked) $('#count').textContent = '· Top ' + boardRows.length + ' of ' + totalCount;
 }
 async function loadMembers() {

@@ -18,7 +18,9 @@ window.DREAMERS_CONFIG = {
     { name: "Salome Mayo", photo: "featured/dreamer-8.jpg" },
     { name: "J.E.M.", photo: "featured/dreamer-9.jpg" }
   ],
-  // Points ranking (leaderboard + top-7 carousel). Prepared but OFF. Set to true to switch it on.
-  RANKING_ACTIVE: false,
+  // Points ranking (leaderboard + top-7 carousel). Set RANKING_ACTIVE to false to switch it off.
+  RANKING_ACTIVE: true,
+  // Dry run: while the sheet has no points, show sample points (labelled "Preview"). Set false to use real points only.
+  RANKING_DEMO: true,
   EMAIL: ""           // e.g. "hello@example.com"
 };

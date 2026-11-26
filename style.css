@@ -295,3 +295,14 @@ footer{padding-bottom:80px}
 .pts b{font:700 1.5rem "Cinzel",serif; color:var(--gold)}
 .pts span{color:var(--muted); font-size:.92rem}
 #ranking[hidden]{display:none}
+
+.board li{position:relative}
+.board .rk{font-size:1.3rem}
+.board .mid{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px}
+.board .bd{font-size:.78rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.board .bar{display:block; height:5px; border-radius:5px; background:rgba(190,170,255,.15); overflow:hidden}
+.board .bar i{display:block; height:100%; border-radius:5px; background:linear-gradient(90deg,var(--accent2),var(--accent))}
+.board li.r1{border-color:rgba(255,233,168,.55); background:linear-gradient(90deg,rgba(255,233,168,.10),rgba(255,255,255,.04)); box-shadow:0 0 22px rgba(255,233,168,.12)}
+.board li.r1 .bar i{background:linear-gradient(90deg,#fff3c4,#f7b8ff)}
+.board li.r1 .av{border-color:var(--gold); box-shadow:0 0 12px rgba(255,233,168,.5)}
+@media (max-width:480px){.board li{gap:9px; padding:10px} .board .av{width:36px;height:36px}}
