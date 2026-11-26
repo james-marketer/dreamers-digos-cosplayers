@@ -306,3 +306,20 @@ footer{padding-bottom:80px}
 .board li.r1 .bar i{background:linear-gradient(90deg,#fff3c4,#f7b8ff)}
 .board li.r1 .av{border-color:var(--gold); box-shadow:0 0 12px rgba(255,233,168,.5)}
 @media (max-width:480px){.board li{gap:9px; padding:10px} .board .av{width:36px;height:36px}}
+
+/* Orbit mode (ranking on): one card in front, ring turns slowly, stars drift through the gaps */
+.carousel.orbit{perspective:1200px}
+.carousel.orbit::before{content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 45% 55% at 50% 50%, rgba(142,90,255,.28), rgba(80,160,255,.08) 55%, transparent 75%)}
+.carousel.orbit .spin,.carousel.orbit .stars{position:absolute; left:0; top:0; width:0; height:0; transform-style:preserve-3d; will-change:transform}
+.carousel.orbit .card{box-shadow:0 12px 40px rgba(60,20,140,.45)}
+.carousel.orbit .stars i{position:absolute; left:0; top:0; border-radius:50%; background:#fff; box-shadow:0 0 6px 2px rgba(190,160,255,.8); animation:orbitTwinkle 3s ease-in-out infinite; pointer-events:none}
+@keyframes orbitTwinkle{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.carousel.orbit .stars i{animation:none; opacity:.7}}
+
+.allwrap{text-align:center; margin:14px 0 0}
+.modal-box.narrow{max-width:560px}
+.rlist{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.rlist li{display:flex; align-items:center; gap:12px; padding:8px 12px; border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.05)}
+.rlist .av{width:38px; height:38px; border-radius:50%; background:#2a1458 center 22%/cover; border:1px solid var(--line); flex:none}
+.rlist .nm{font-weight:600}
+.board{grid-template-columns:minmax(0,1fr)} .board .bd{max-width:100%}

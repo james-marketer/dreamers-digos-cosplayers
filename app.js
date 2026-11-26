@@ -85,18 +85,49 @@ function render(list) {
   const grid = $('#grid'); stopCar();
   $('#gridMsg').textContent = list.length ? '' : 'No dreamers match your search.';
   $('#carCtl').hidden = list.length < 2;
-  grid.className = 'carousel';
-  grid.innerHTML = '<div class="ring">' + list.map(cardHtml).join('') + '</div>';
-  const ring = grid.firstChild, cards = [...ring.children], n = cards.length;
+  const orbit = list === members && !!(boardRows && boardRows.length);   // ranking on: one big card on a slowly turning ring
+  grid.className = 'carousel' + (orbit ? ' orbit' : '');
+  grid.innerHTML = orbit
+    ? '<div class="ring"><div class="stars"></div><div class="spin">' + list.map(cardHtml).join('') + '</div></div>'
+    : '<div class="ring">' + list.map(cardHtml).join('') + '</div>';
+  const ring = grid.firstChild, cards = [...grid.querySelectorAll('.card')], n = cards.length;
+  $('#carCtl').firstElementChild.nextElementSibling.textContent = orbit ? 'Drag to spin, tap a Dreamer, or use the arrows' : 'Drag, tap a side card, or use the arrows';
   if (!n) { grid.style.height = ''; return; }
   const W = grid.clientWidth || 320;
-  const cw = Math.round(Math.min(210, W * 0.42)), step = cw * 0.85;
+  const cw = Math.round(Math.min(orbit ? 240 : 210, W * (orbit ? 0.56 : 0.42))), step = orbit ? cw * 1.3 : cw * 0.85;
   grid.style.setProperty('--cw', cw + 'px');
-  grid.style.height = (cards[0].offsetHeight + 44) + 'px';
+  const ch = cards[0].offsetHeight, R = Math.round(cw * 1.45), ang = 360 / n;
+  grid.style.height = (ch + (orbit ? 90 : 44)) + 'px';
+  let spinEl = null, starsEl = null;
+  if (orbit) {
+    ring.style.top = '45px'; ring.style.transform = 'translateZ(' + (-R) + 'px)';
+    spinEl = ring.querySelector('.spin'); starsEl = ring.querySelector('.stars');
+    cards.forEach((c, i) => { c.style.transform = 'rotateY(' + (i * ang) + 'deg) translateZ(' + R + 'px)'; });
+    let h = 11; const rnd = () => (h = (h * 16807) % 2147483647) / 2147483647;
+    starsEl.innerHTML = Array.from({ length: 80 }, () => {
+      const th = rnd() * 360, r = R * (0.1 + rnd() * 1.25), y = (rnd() - 0.5) * (ch + 70), sz = 1.5 + rnd() * 3;
+      return '<i style="width:' + sz + 'px;height:' + sz + 'px;transform:rotateY(' + th + 'deg) translateZ(' + r + 'px) translateY(' + y + 'px);animation-delay:' + (-rnd() * 5).toFixed(2) + 's;animation-duration:' + (2 + rnd() * 4).toFixed(2) + 's"></i>';
+    }).join('');
+    starsEl.style.top = (ch / 2) + 'px';
+  }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, half = n / 2;
   const s = car = { pos: 0, target: null, drag: false, hover: false, idle: 3000, ds: [], raf: 0, last: performance.now(), off: () => {} };
 
   const paint = () => {
+    if (orbit) {
+      spinEl.style.transform = 'rotateY(' + (-s.pos * ang) + 'deg)';
+      starsEl.style.transform = 'rotateY(' + (s.pos * ang * 0.45 + performance.now() * 0.0035) + 'deg)';
+      cards.forEach((c, i) => {
+        let d = (((i - s.pos) % n) + n) % n; if (n > 1 && d >= half) d -= n;
+        s.ds[i] = d;
+        const co = Math.cos(d * ang * Math.PI / 180);
+        if (co <= 0.02) { c.style.visibility = 'hidden'; c.style.pointerEvents = 'none'; return; }
+        c.style.visibility = 'visible';
+        c.style.opacity = Math.pow(co, 2.4).toFixed(2);
+        c.style.pointerEvents = co > 0.55 ? 'auto' : 'none';
+      });
+      return;
+    }
     cards.forEach((c, i) => {
       let d = (((i - s.pos) % n) + n) % n; if (n > 1 && d >= half) d -= n;
       s.ds[i] = d;
@@ -119,7 +150,7 @@ function render(list) {
     } else if (s.drag) s.idle = 0;
     else {
       s.idle += dt;
-      if (s.idle > 1000 && !reduce && n > 1 && !document.hidden) s.pos += dt * 0.00035 * (s.hover ? 0.25 : 1);
+      if (s.idle > (orbit ? 800 : 1000) && !reduce && n > 1 && !document.hidden) s.pos += dt * (orbit ? 0.00017 : 0.00035) * (s.hover ? 0.25 : 1);
     }
     paint(); s.raf = requestAnimationFrame(tick);
   };
@@ -161,7 +192,7 @@ function showRoster() {
   render(members);
 }
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-let boardRows = null, totalAll = 0, boardDemo = false;   // boardRows null = ranking not available yet
+let boardRows = null, totalAll = 0, boardDemo = false, allList = [];   // boardRows null = ranking not available yet
 const CFG = window.DREAMERS_CONFIG || {};
 const RANKING_ON = !!CFG.RANKING_ACTIVE;   // switch lives in config.js
 // Dry-run sample points (only used when the sheet has no points yet and RANKING_DEMO is true)
@@ -209,7 +240,9 @@ async function loadMembers() {
   const build = d => {
     const have = new Set(manual.map(m => norm(m.name)));
     const all = manual.concat(((d && d.members) || []).filter(m => m && m.name && !have.has(norm(m.name))));
+    allList = all;
     members = applyRanking(all, d && d.ranking);
+    const ab = $('#allBtn'); ab.hidden = !all.length; ab.textContent = 'View all Dreamers (' + all.length + ')';
     totalAll = all.length; renderBoard(totalAll);
   };
   if (!URL_) { build(null); showRoster(); return; }
@@ -399,6 +432,21 @@ function burst() {
 }
 const _ok = $('#formMsg');
 new MutationObserver(() => { if (_ok.classList.contains('ok')) burst(); }).observe(_ok, { attributes: true, attributeFilter: ['class'] });
+
+/* Full roster popup: every Dreamer, A to Z */
+(() => {
+  const m = $('#roster'); let opener = null;
+  const close = () => { m.hidden = true; document.body.style.overflow = ''; if (opener) opener.focus(); };
+  $('#allBtn').addEventListener('click', e => {
+    opener = e.currentTarget;
+    const list = allList.slice().sort((x, y) => x.name.localeCompare(y.name, undefined, { sensitivity: 'base', numeric: true }));
+    $('#rosterSub').textContent = list.length + ' Dreamers in Digos City, A to Z';
+    $('#rosterList').innerHTML = list.map(p => `<li><span class="av" style="background-image:url('${esc(p.photos[0] || '')}')"></span><span class="nm">${esc(p.name)}</span></li>`).join('');
+    m.hidden = false; document.body.style.overflow = 'hidden'; m.scrollTop = 0; m.querySelector('.modal-box').scrollTop = 0; m.querySelector('[data-close]').focus();
+  });
+  m.addEventListener('click', e => { if (e.target === m || e.target.closest('[data-close]')) close(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !m.hidden) close(); });
+})();
 
 /* Yume Sanctuary popup */
 (() => {
