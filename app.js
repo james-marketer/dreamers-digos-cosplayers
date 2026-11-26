@@ -286,7 +286,7 @@ new MutationObserver(() => { if (_ok.classList.contains('ok')) burst(); }).obser
 function renderFeatured() {
   const list = ((window.DREAMERS_CONFIG || {}).FEATURED || []).filter(f => f && f.name);
   const sec = $('#featured');
-  sec.hidden = !list.length;
+  sec.hidden = !list.length; if (list.length) sec.classList.add('in');
   $('#featuredList').innerHTML = list.map((f, i) => `
     <article class="feat">
       <div class="feat-ph" data-f="${i}" role="button" tabindex="0" aria-label="View photo of ${esc(f.name)}" style="background-image:url('${esc(f.photo)}')"><span class="badge">★ Featured</span></div>
