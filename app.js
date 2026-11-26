@@ -75,7 +75,6 @@ const cardHtml = m => `
       </div>
       <div class="body">
         <h3>${esc(m.name)}</h3>
-        ${m.character ? `<div class="chr">${esc(m.character)}</div>` : ''}
         ${m.details ? `<p>${esc(m.details)}</p>` : ''}
         ${/^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i.test(m.facebook) ? `<a href="${esc(m.facebook)}" target="_blank" rel="noopener noreferrer">Facebook ↗</a>` : ''}
       </div>
