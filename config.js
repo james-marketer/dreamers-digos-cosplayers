@@ -8,14 +8,7 @@ window.DREAMERS_CONFIG = {
   // Add one line per person: name, photo (put the file in the "featured" folder).
   // Optional extras: character, details, facebook, photos: ["a.jpg","b.jpg"]
   MEMBERS: [
-    { name: "Cheezy kei", photo: "featured/dreamer-1.jpg" },
-    { name: "Jett", photo: "featured/dreamer-2.jpg" },
-    { name: "Aerix Luxen", photo: "featured/dreamer-3.jpg" },
-    { name: "Yuichikaii", photo: "featured/dreamer-4.jpg" },
-    { name: "Redfyrr", photo: "featured/dreamer-5.jpg" },
     { name: "Neko Hime", photo: "featured/dreamer-6.jpg" },
-    { name: "Alfie Pop", photo: "featured/dreamer-7.jpg" },
-    { name: "Salome Mayo", photo: "featured/dreamer-8.jpg" },
     { name: "J.E.M.", photo: "featured/dreamer-9.jpg" }
   ],
   // Points ranking (leaderboard + top-7 carousel). Set RANKING_ACTIVE to false to switch it off.
