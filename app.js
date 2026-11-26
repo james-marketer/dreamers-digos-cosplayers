@@ -198,3 +198,27 @@ form.addEventListener('submit', async ev => {
   } catch (e) { setMsg('Could not send: ' + e.message, 'err'); }
   btn.disabled = false;
 });
+
+/* Reach chart (from the pitch deck, public Facebook data as of Oct 19, 2026) */
+(() => {
+  const data = [['Announcement (Sep 10)', 159, 179], ['Day 1 recap (Oct 5)', 340, 130], ['Event preview (Oct 7)', 78, 28], ['Week wrap (Oct 11)', 160, 58]];
+  const max = Math.max(...data.flatMap(d => [d[1], d[2]]));
+  $('#reach').innerHTML = '<div class="lg"><i class="r"></i>Reactions <i class="s"></i>Shares</div>' + data.map(d => `
+    <div class="row"><span>${d[0]}</span>
+      <div class="bars"><div class="bar r" style="--w:${d[1] / max * 100}%"><em>${d[1]}</em></div>
+      <div class="bar s" style="--w:${d[2] / max * 100}%"><em>${d[2]}</em></div></div></div>`).join('');
+})();
+
+/* Partner / Volunteer contact links (set in config.js) */
+(() => {
+  const C = window.DREAMERS_CONFIG || {};
+  const href = what => C.EMAIL ? 'mailto:' + C.EMAIL + '?subject=' + encodeURIComponent(what + ' — Yume Sanctuary') : (C.FACEBOOK_URL || '#join');
+  const ext = C.FACEBOOK_URL && !C.EMAIL;
+  [['#btnPartner', 'Partner'], ['#btnVolunteer', 'Volunteer']].forEach(([id, w]) => {
+    const a = $(id); a.href = href(w); if (ext) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+  });
+  const line = $('#contactLine'), bits = [];
+  if (C.FACEBOOK_URL) bits.push('<a href="' + esc(C.FACEBOOK_URL) + '" target="_blank" rel="noopener noreferrer">Facebook</a>');
+  if (C.EMAIL) bits.push('<a href="mailto:' + esc(C.EMAIL) + '">' + esc(C.EMAIL) + '</a>');
+  if (bits.length) { line.innerHTML = 'Reach us: ' + bits.join(' · '); line.hidden = false; }
+})();
