@@ -433,18 +433,44 @@ function burst() {
 const _ok = $('#formMsg');
 new MutationObserver(() => { if (_ok.classList.contains('ok')) burst(); }).observe(_ok, { attributes: true, attributeFilter: ['class'] });
 
-/* Full roster popup: every Dreamer, A to Z */
+/* Full roster popup: every Dreamer, A to Z. Tap one to see their photo and details. */
 (() => {
-  const m = $('#roster'); let opener = null;
+  const m = $('#roster'); let opener = null, sorted = [];
   const close = () => { m.hidden = true; document.body.style.overflow = ''; if (opener) opener.focus(); };
+  const top = () => { m.scrollTop = 0; m.querySelector('.modal-box').scrollTop = 0; };
+  const bg = u => `style="background-image:url('${esc(u)}')"`;
+  const showList = () => {
+    $('#rosterTitle').textContent = 'All Dreamers';
+    $('#rosterSub').textContent = sorted.length + ' Dreamers in Digos City, A to Z';
+    $('#rosterList').hidden = false; $('#rosterView').hidden = true; top();
+  };
+  const showOne = i => {
+    const p = sorted[i], v = $('#rosterView'), fb = /^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i.test(p.facebook || '');
+    $('#rosterTitle').textContent = p.name; $('#rosterSub').textContent = '';
+    v.innerHTML = `<button type="button" class="btn ghost back">← All Dreamers</button>
+      <div class="pview"><div class="pbig" ${bg(p.photos[0] || '')} role="img" aria-label="Photo of ${esc(p.name)}"></div>
+      ${p.photos.length > 1 ? '<div class="pthumbs">' + p.photos.map((u, k) => `<button type="button" class="${k ? '' : 'on'}" ${bg(u)} aria-label="Photo ${k + 1}"></button>`).join('') + '</div>' : ''}
+      ${p.character ? `<h3 class="pchr">Past cosplay</h3><p class="chr2">${esc(p.character)}</p>` : ''}
+      ${p.details ? `<h3 class="pchr">About</h3><p>${esc(p.details)}</p>` : ''}
+      ${fb ? `<p><a class="btn" href="${esc(p.facebook)}" target="_blank" rel="noopener noreferrer">Facebook ↗</a></p>` : ''}
+      ${!p.character && !p.details && !fb ? '<p class="muted">A proud Dreamer of Digos Cosplayers.</p>' : ''}
+      </div>`;
+    $('#rosterList').hidden = true; v.hidden = false; top();
+  };
   $('#allBtn').addEventListener('click', e => {
     opener = e.currentTarget;
-    const list = allList.slice().sort((x, y) => x.name.localeCompare(y.name, undefined, { sensitivity: 'base', numeric: true }));
-    $('#rosterSub').textContent = list.length + ' Dreamers in Digos City, A to Z';
-    $('#rosterList').innerHTML = list.map(p => `<li><span class="av" style="background-image:url('${esc(p.photos[0] || '')}')"></span><span class="nm">${esc(p.name)}</span></li>`).join('');
-    m.hidden = false; document.body.style.overflow = 'hidden'; m.scrollTop = 0; m.querySelector('.modal-box').scrollTop = 0; m.querySelector('[data-close]').focus();
+    sorted = allList.slice().sort((x, y) => x.name.localeCompare(y.name, undefined, { sensitivity: 'base', numeric: true }));
+    $('#rosterList').innerHTML = sorted.map((p, i) => `<li><button type="button" data-i="${i}"><span class="av" ${bg(p.photos[0] || '')}></span><span class="nm">${esc(p.name)}</span><span class="go">›</span></button></li>`).join('');
+    showList();
+    m.hidden = false; document.body.style.overflow = 'hidden'; m.querySelector('[data-close]').focus();
   });
-  m.addEventListener('click', e => { if (e.target === m || e.target.closest('[data-close]')) close(); });
+  m.addEventListener('click', e => {
+    if (e.target === m || e.target.closest('[data-close]')) return close();
+    const b = e.target.closest('#rosterList button'); if (b) return showOne(+b.dataset.i);
+    if (e.target.closest('.back')) return showList();
+    const t = e.target.closest('.pthumbs button');
+    if (t) { const v = $('#rosterView'); v.querySelector('.pbig').style.backgroundImage = t.style.backgroundImage; v.querySelectorAll('.pthumbs button').forEach(x => x.classList.toggle('on', x === t)); }
+  });
   addEventListener('keydown', e => { if (e.key === 'Escape' && !m.hidden) close(); });
 })();
 

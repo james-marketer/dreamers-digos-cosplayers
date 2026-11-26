@@ -323,3 +323,18 @@ footer{padding-bottom:80px}
 .rlist .av{width:38px; height:38px; border-radius:50%; background:#2a1458 center 22%/cover; border:1px solid var(--line); flex:none}
 .rlist .nm{font-weight:600}
 .board{grid-template-columns:minmax(0,1fr)} .board .bd{max-width:100%}
+
+.rlist li{padding:0}
+.rlist button{all:unset; box-sizing:border-box; display:flex; align-items:center; gap:12px; width:100%; padding:8px 12px; cursor:pointer; border-radius:12px; color:var(--ink)}
+.rlist button:hover,.rlist button:focus-visible{background:rgba(190,170,255,.12); outline:none}
+.rlist .nm{flex:1}
+.rlist .go{color:var(--gold); font-size:1.4rem}
+#rosterList[hidden],#rosterView[hidden]{display:none}
+.pview{margin-top:14px; text-align:center}
+.pview .pbig{width:min(100%,380px); aspect-ratio:3/4; margin:0 auto 12px; border-radius:18px; border:1px solid var(--line); background:#1a1040 center 22%/cover; box-shadow:0 0 30px rgba(120,70,255,.3)}
+.pthumbs{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:14px}
+.pthumbs button{width:54px; height:54px; border-radius:10px; border:2px solid var(--line); background:#1a1040 center/cover; cursor:pointer; padding:0}
+.pthumbs button.on{border-color:var(--gold)}
+.pview .pchr{margin:14px 0 4px; font:700 .85rem "Quicksand",sans-serif; letter-spacing:.2em; text-transform:uppercase; color:var(--gold)}
+.pview p{margin:0 0 8px; color:var(--muted); white-space:pre-line}
+.pview .chr2{color:var(--ink)}
