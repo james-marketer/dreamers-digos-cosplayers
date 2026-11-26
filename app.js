@@ -445,15 +445,14 @@ new MutationObserver(() => { if (_ok.classList.contains('ok')) burst(); }).obser
     $('#rosterList').hidden = false; $('#rosterView').hidden = true; top();
   };
   const showOne = i => {
-    const p = sorted[i], v = $('#rosterView'), fb = /^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i.test(p.facebook || '');
+    const p = sorted[i], v = $('#rosterView');
     $('#rosterTitle').textContent = p.name; $('#rosterSub').textContent = '';
     v.innerHTML = `<button type="button" class="btn ghost back">← All Dreamers</button>
       <div class="pview"><div class="pbig" ${bg(p.photos[0] || '')} role="img" aria-label="Photo of ${esc(p.name)}"></div>
       ${p.photos.length > 1 ? '<div class="pthumbs">' + p.photos.map((u, k) => `<button type="button" class="${k ? '' : 'on'}" ${bg(u)} aria-label="Photo ${k + 1}"></button>`).join('') + '</div>' : ''}
       ${p.character ? `<h3 class="pchr">Past cosplay</h3><p class="chr2">${esc(p.character)}</p>` : ''}
       ${p.details ? `<h3 class="pchr">About</h3><p>${esc(p.details)}</p>` : ''}
-      ${fb ? `<p><a class="btn" href="${esc(p.facebook)}" target="_blank" rel="noopener noreferrer">Facebook ↗</a></p>` : ''}
-      ${!p.character && !p.details && !fb ? '<p class="muted">A proud Dreamer of Digos Cosplayers.</p>' : ''}
+      ${!p.character && !p.details ? '<p class="muted">A proud Dreamer of Digos Cosplayers.</p>' : ''}
       </div>`;
     $('#rosterList').hidden = true; v.hidden = false; top();
   };

@@ -129,7 +129,7 @@ function doGet(e) {
       .filter(function (r) { return String(r[COL.STATUS - 1]).toLowerCase() === 'approved'; })
       .map(function (r) {
         return {
-          name: r[1], character: r[2], details: r[3], facebook: r[4],
+          name: r[1], character: r[2], details: r[3],
           photos: String(r[7]).split(',').filter(String).map(function (id) {
             return 'https://drive.google.com/thumbnail?id=' + id + '&sz=w800';
           })
