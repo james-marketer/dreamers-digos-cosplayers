@@ -17,7 +17,8 @@
   <circle cx="120" cy="120" r="92" fill="#120a2e" stroke="url(#ring)" stroke-width="4"/>
   <circle cx="120" cy="120" r="82" fill="none" stroke="url(#ring)" stroke-width="1" stroke-dasharray="2 7" stroke-linecap="round"/>
   <!-- crescent moon -->
-  <path d="M140 64 A60 60 0 1 0 140 176 A80 80 0 1 1 140 64 Z" fill="url(#moon)"/>
+  <mask id="cut"><rect width="240" height="240" fill="#fff"/><circle cx="136" cy="112" r="50" fill="#000"/></mask>
+  <circle cx="108" cy="120" r="56" fill="url(#moon)" mask="url(#cut)"/>
   <!-- big four-point star -->
   <path d="M150 88 L155 107 L174 112 L155 117 L150 136 L145 117 L126 112 L145 107 Z" fill="#fff"/>
   <!-- small stars -->
