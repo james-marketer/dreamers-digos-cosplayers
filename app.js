@@ -81,7 +81,7 @@ const cardHtml = m => `
       </div>
     </article>`;
 
-/* 3D spinning carousel */
+/* Cover-flow carousel: 3 cards visible, drifts on its own when idle */
 let car = null, suppressClick = false;
 function stopCar() { if (car) { cancelAnimationFrame(car.raf); car.off(); car = null; } }
 function render(list) {
@@ -91,49 +91,64 @@ function render(list) {
   grid.className = 'carousel';
   grid.innerHTML = '<div class="ring">' + list.map(cardHtml).join('') + '</div>';
   const ring = grid.firstChild, cards = [...ring.children], n = cards.length;
-  if (!n) return;
-  const cw = cards[0].offsetWidth || 210, theta = 360 / n;
-  const minR = 190;
-  const radius = n < 2 ? 0 : Math.max(((cw + 36) / 2) / Math.tan(Math.PI / n), minR);
-  cards.forEach((c, i) => { c.style.transform = 'rotateY(' + i * theta + 'deg) translateZ(' + radius + 'px)'; });
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const s = car = { angle: 0, target: null, drag: false, hover: false, idle: 3000, theta, last: performance.now(), raf: 0, off: () => {} };
+  if (!n) { grid.style.height = ''; return; }
+  const W = grid.clientWidth || 320;
+  const cw = Math.round(Math.min(210, W * 0.42)), step = cw * 0.85;
+  grid.style.setProperty('--cw', cw + 'px');
+  grid.style.height = (cards[0].offsetHeight + 44) + 'px';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, half = n / 2;
+  const s = car = { pos: 0, target: null, drag: false, hover: false, idle: 3000, ds: [], raf: 0, last: performance.now(), off: () => {} };
 
   const paint = () => {
-    ring.style.transform = 'translateZ(' + (-radius) + 'px) rotateY(' + s.angle + 'deg)';
     cards.forEach((c, i) => {
-      const ang = (((i * theta + s.angle) % 360) + 360) % 360, f = (Math.cos(ang * Math.PI / 180) + 1) / 2;
-      c.style.opacity = (n < 2 ? 1 : .3 + .7 * f).toFixed(2);
-      c.style.zIndex = Math.round(f * 100);
-      c.style.pointerEvents = f > .6 || n < 2 ? 'auto' : 'none';
+      let d = (((i - s.pos) % n) + n) % n; if (n > 1 && d >= half) d -= n;
+      s.ds[i] = d;
+      const ad = Math.abs(d);
+      if (ad >= 1.6) { c.style.visibility = 'hidden'; c.style.pointerEvents = 'none'; return; }
+      c.style.visibility = 'visible';
+      const k = Math.max(-1, Math.min(1, d));
+      c.style.transform = 'translateX(' + (d * step) + 'px) translateZ(' + (-ad * cw * 0.55) + 'px) rotateY(' + (-k * 38) + 'deg)';
+      c.style.opacity = (ad <= 1 ? 1 - ad * 0.3 : Math.max(0, 0.7 - (ad - 1) * 1.15)).toFixed(2);
+      c.style.zIndex = Math.round(100 - ad * 20);
+      c.style.pointerEvents = ad < 1.3 ? 'auto' : 'none';
     });
   };
   const tick = t => {
     const dt = Math.min(t - s.last, 50); s.last = t;
     if (s.target !== null) {
-      s.angle += (s.target - s.angle) * .12;
-      if (Math.abs(s.target - s.angle) < .05) { s.angle = s.target; s.target = null; }
+      s.pos += (s.target - s.pos) * 0.12;
+      if (Math.abs(s.target - s.pos) < 0.002) { s.pos = s.target; s.target = null; }
       s.idle = 0;
-    } else if (s.drag || s.hover) s.idle = 0;
-    else { s.idle += dt; if (s.idle > 2500 && !reduce && n > 1 && !document.hidden) s.angle -= dt * 0.009; }
+    } else if (s.drag) s.idle = 0;
+    else {
+      s.idle += dt;
+      if (s.idle > 1000 && !reduce && n > 1 && !document.hidden) s.pos += dt * 0.00035 * (s.hover ? 0.25 : 1);
+    }
     paint(); s.raf = requestAnimationFrame(tick);
   };
 
-  let sx = 0, sa = 0, moved = false;
-  const down = e => { if (e.button > 0 || n < 2) return; s.drag = true; sx = e.clientX; sa = s.angle; moved = false; s.target = null; };
-  const move = e => { if (!s.drag) return; const dx = e.clientX - sx; if (Math.abs(dx) > 6) moved = true; s.angle = sa + dx * 0.35; };
-  const up = () => { if (!s.drag) return; s.drag = false; if (moved) { suppressClick = true; setTimeout(() => suppressClick = false, 0); s.target = Math.round(s.angle / theta) * theta; } };
+  let sx = 0, sp = 0, moved = false;
+  const down = e => { if (e.button > 0 || n < 2) return; s.drag = true; sx = e.clientX; sp = s.pos; moved = false; s.target = null; };
+  const move = e => { if (!s.drag) return; const dx = e.clientX - sx; if (Math.abs(dx) > 6) moved = true; s.pos = sp - dx / step; };
+  const up = () => { if (!s.drag) return; s.drag = false; if (moved) { suppressClick = true; setTimeout(() => suppressClick = false, 0); s.target = Math.round(s.pos); } };
   const enter = e => { if (e.pointerType === 'mouse') s.hover = true; }, leave = () => { s.hover = false; };
   grid.addEventListener('pointerdown', down); grid.addEventListener('pointerenter', enter); grid.addEventListener('pointerleave', leave);
   addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
   s.off = () => { grid.removeEventListener('pointerdown', down); grid.removeEventListener('pointerenter', enter); grid.removeEventListener('pointerleave', leave);
     removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); };
-  s.raf = requestAnimationFrame(tick);
+  paint(); s.raf = requestAnimationFrame(tick);
 }
-$('#grid').addEventListener('click', e => { if (suppressClick) { e.stopPropagation(); e.preventDefault(); } }, true);
-const spin = dir => { if (car) car.target = (Math.round(car.angle / car.theta) + dir) * car.theta; };
-$('#carPrev').addEventListener('click', () => spin(1));
-$('#carNext').addEventListener('click', () => spin(-1));
+$('#grid').addEventListener('click', e => {
+  if (suppressClick) { e.stopPropagation(); e.preventDefault(); return; }
+  const c = e.target.closest('.card');
+  if (c && car) {
+    const d = car.ds[[...c.parentNode.children].indexOf(c)];
+    if (Math.abs(d) > 0.35) { e.stopPropagation(); e.preventDefault(); car.target = car.pos + d; }   // side card: bring to front
+  }
+}, true);
+const spin = dir => { if (car) car.target = Math.round(car.pos) + dir; };
+$('#carPrev').addEventListener('click', () => spin(-1));
+$('#carNext').addEventListener('click', () => spin(1));
 function manualMembers() {
   return ((window.DREAMERS_CONFIG || {}).MEMBERS || []).filter(m => m && m.name).map(m => ({
     name: m.name, character: m.character || '', details: m.details || '', facebook: m.facebook || '',
