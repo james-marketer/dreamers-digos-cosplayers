@@ -18,5 +18,7 @@ window.DREAMERS_CONFIG = {
     { name: "Salome Mayo", photo: "featured/dreamer-8.jpg" },
     { name: "J.E.M.", photo: "featured/dreamer-9.jpg" }
   ],
+  // Points ranking (leaderboard + top-7 carousel). Prepared but OFF. Set to true to switch it on.
+  RANKING_ACTIVE: false,
   EMAIL: ""           // e.g. "hello@example.com"
 };

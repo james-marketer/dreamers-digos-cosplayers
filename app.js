@@ -162,9 +162,10 @@ function showRoster() {
 }
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 let boardRows = null, totalAll = 0;   // boardRows null = ranking not available yet
+const RANKING_ON = !!(window.DREAMERS_CONFIG || {}).RANKING_ACTIVE;   // switch lives in config.js
 function applyRanking(all, ranking) {
   boardRows = null;
-  if (!Array.isArray(ranking)) return all;
+  if (!RANKING_ON || !Array.isArray(ranking)) return all;
   const by = new Map(ranking.map(r => [norm(r.name), r]));
   const scored = all.map(m => ({ m, r: by.get(norm(m.name)) })).filter(x => x.r && x.r.total > 0);
   boardRows = [];
@@ -177,6 +178,8 @@ function applyRanking(all, ranking) {
 function renderBoard(totalCount) {
   const ol = $('#board'), msg = $('#boardMsg');
   if (!ol) return;
+  $('#ranking').hidden = !RANKING_ON;
+  if (!RANKING_ON) return;
   const ranked = boardRows && boardRows.length;
   ol.innerHTML = ranked ? boardRows.map((r, i) => `<li><span class="rk">${i + 1}</span><span class="av" style="background-image:url('${esc(r.photo)}')"></span><span class="nm">${esc(r.name)}</span><span class="pt">${r.total} pts</span></li>`).join('') : '';
   msg.textContent = ranked ? '' : 'Rankings will appear here once points are recorded.';
