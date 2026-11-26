@@ -17,7 +17,8 @@ window.DREAMERS_CONFIG = {
     "Jett": 4,
     "Cheezy kei": 2,
     "Redfyrr": 3,
-    "Salome Mayo": "featured/dreamer-10.jpg"
+    "Salome Mayo": "featured/dreamer-10.jpg",
+    "Yuichikaii": "featured/dreamer-11.jpg"
   },
   // Points ranking (leaderboard + top-7 carousel). Set RANKING_ACTIVE to false to switch it off.
   RANKING_ACTIVE: true,
