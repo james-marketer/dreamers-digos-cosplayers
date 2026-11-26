@@ -265,3 +265,16 @@ footer{padding-bottom:80px}
 @media (max-width:720px){ .feat{grid-template-columns:1fr} .feat-ph{min-height:280px} }
 
 .card .ph{background-position:center 22%}
+
+/* ---------- 3D carousel ---------- */
+.carousel{--cw:210px; position:relative; height:420px; margin-top:10px; perspective:1300px; overflow:hidden; touch-action:pan-y; user-select:none; -webkit-user-select:none; cursor:grab; display:block}
+.carousel:active{cursor:grabbing}
+.carousel .ring{position:absolute; left:50%; top:18px; width:0; height:0; transform-style:preserve-3d; will-change:transform}
+.carousel .card{position:absolute; left:calc(var(--cw) / -2); top:0; width:var(--cw); backface-visibility:hidden; -webkit-backface-visibility:hidden; background:rgba(22,14,56,.92)}
+.carousel .card:hover{box-shadow:0 10px 30px rgba(120,70,255,.35)}
+.carousel .card .ph{cursor:pointer; -webkit-user-drag:none}
+.car-ctl{display:flex; align-items:center; justify-content:center; gap:16px; margin-top:6px; color:var(--muted); font-size:.85rem}
+.car-ctl[hidden]{display:none}
+.car-ctl button{width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:rgba(20,12,52,.85); color:var(--gold); font-size:1.5rem; cursor:pointer}
+.car-ctl button:hover{border-color:var(--gold)}
+@media (max-width:520px){ .carousel{--cw:180px; height:380px} }

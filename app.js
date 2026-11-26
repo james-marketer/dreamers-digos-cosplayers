@@ -68,9 +68,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt
 
 /* Members gallery */
 let members = [];
-function render(list) {
-  const grid = $('#grid');
-  grid.innerHTML = list.map(m => `
+const cardHtml = m => `
     <article class="card">
       <div class="ph" data-i="${members.indexOf(m)}" style="background-image:url('${esc(m.photos[0] || '')}')" role="button" tabindex="0" aria-label="View photos of ${esc(m.name)}">
         ${m.photos.length > 1 ? `<span class="count">+${m.photos.length - 1}</span>` : ''}
@@ -78,12 +76,64 @@ function render(list) {
       <div class="body">
         <h3>${esc(m.name)}</h3>
         ${m.character ? `<div class="chr">${esc(m.character)}</div>` : ''}
-        ${m.details ? `<p>${esc(m.details)}</p>` : ""}
+        ${m.details ? `<p>${esc(m.details)}</p>` : ''}
         ${/^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i.test(m.facebook) ? `<a href="${esc(m.facebook)}" target="_blank" rel="noopener noreferrer">Facebook ↗</a>` : ''}
       </div>
-    </article>`).join('');
+    </article>`;
+
+/* 3D spinning carousel */
+let car = null, suppressClick = false;
+function stopCar() { if (car) { cancelAnimationFrame(car.raf); car.off(); car = null; } }
+function render(list) {
+  const grid = $('#grid'); stopCar();
   $('#gridMsg').textContent = list.length ? '' : 'No dreamers match your search.';
+  $('#carCtl').hidden = list.length < 2;
+  grid.className = 'carousel';
+  grid.innerHTML = '<div class="ring">' + list.map(cardHtml).join('') + '</div>';
+  const ring = grid.firstChild, cards = [...ring.children], n = cards.length;
+  if (!n) return;
+  const cw = cards[0].offsetWidth || 210, theta = 360 / n;
+  const minR = 190;
+  const radius = n < 2 ? 0 : Math.max(((cw + 36) / 2) / Math.tan(Math.PI / n), minR);
+  cards.forEach((c, i) => { c.style.transform = 'rotateY(' + i * theta + 'deg) translateZ(' + radius + 'px)'; });
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const s = car = { angle: 0, target: null, drag: false, hover: false, idle: 3000, theta, last: performance.now(), raf: 0, off: () => {} };
+
+  const paint = () => {
+    ring.style.transform = 'translateZ(' + (-radius) + 'px) rotateY(' + s.angle + 'deg)';
+    cards.forEach((c, i) => {
+      const ang = (((i * theta + s.angle) % 360) + 360) % 360, f = (Math.cos(ang * Math.PI / 180) + 1) / 2;
+      c.style.opacity = (n < 2 ? 1 : .3 + .7 * f).toFixed(2);
+      c.style.zIndex = Math.round(f * 100);
+      c.style.pointerEvents = f > .6 || n < 2 ? 'auto' : 'none';
+    });
+  };
+  const tick = t => {
+    const dt = Math.min(t - s.last, 50); s.last = t;
+    if (s.target !== null) {
+      s.angle += (s.target - s.angle) * .12;
+      if (Math.abs(s.target - s.angle) < .05) { s.angle = s.target; s.target = null; }
+      s.idle = 0;
+    } else if (s.drag || s.hover) s.idle = 0;
+    else { s.idle += dt; if (s.idle > 2500 && !reduce && n > 1 && !document.hidden) s.angle -= dt * 0.009; }
+    paint(); s.raf = requestAnimationFrame(tick);
+  };
+
+  let sx = 0, sa = 0, moved = false;
+  const down = e => { if (e.button > 0 || n < 2) return; s.drag = true; sx = e.clientX; sa = s.angle; moved = false; s.target = null; };
+  const move = e => { if (!s.drag) return; const dx = e.clientX - sx; if (Math.abs(dx) > 6) moved = true; s.angle = sa + dx * 0.35; };
+  const up = () => { if (!s.drag) return; s.drag = false; if (moved) { suppressClick = true; setTimeout(() => suppressClick = false, 0); s.target = Math.round(s.angle / theta) * theta; } };
+  const enter = e => { if (e.pointerType === 'mouse') s.hover = true; }, leave = () => { s.hover = false; };
+  grid.addEventListener('pointerdown', down); grid.addEventListener('pointerenter', enter); grid.addEventListener('pointerleave', leave);
+  addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  s.off = () => { grid.removeEventListener('pointerdown', down); grid.removeEventListener('pointerenter', enter); grid.removeEventListener('pointerleave', leave);
+    removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); };
+  s.raf = requestAnimationFrame(tick);
 }
+$('#grid').addEventListener('click', e => { if (suppressClick) { e.stopPropagation(); e.preventDefault(); } }, true);
+const spin = dir => { if (car) car.target = (Math.round(car.angle / car.theta) + dir) * car.theta; };
+$('#carPrev').addEventListener('click', () => spin(1));
+$('#carNext').addEventListener('click', () => spin(-1));
 function manualMembers() {
   return ((window.DREAMERS_CONFIG || {}).MEMBERS || []).filter(m => m && m.name).map(m => ({
     name: m.name, character: m.character || '', details: m.details || '', facebook: m.facebook || '',
