@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#120a2e;color:#f3eeff}
+  .top{position:sticky;top:0;z-index:2;display:flex;gap:10px;align-items:center;padding:10px 14px;background:#1a1042;border-bottom:1px solid #3b2a7a}
+  .top input{flex:1;padding:8px 12px;border-radius:8px;border:1px solid #4a3a94;background:#0b0620;color:#fff;font-size:14px}
+  .top button{padding:8px 14px;border-radius:8px;border:1px solid #4a3a94;background:#2a1458;color:#ffe9a8;cursor:pointer}
+  table{border-collapse:collapse;width:100%}
+  th{position:sticky;top:53px;background:#2a1458;color:#ffe9a8;font-size:12px;text-align:center;padding:8px 4px}
+  th small{display:block;color:#cdbdff;font-weight:normal}
+  td{padding:6px 4px;border-bottom:1px solid #2b1d63;text-align:center}
+  td.nm{text-align:left;padding-left:14px;font-weight:bold;min-width:150px}
+  tr:hover td{background:#1c1250}
+  .st{display:inline-flex;align-items:center;gap:4px}
+  .st button{width:28px;height:28px;border-radius:50%;border:1px solid #4a3a94;background:#241361;color:#fff;font-size:16px;line-height:1;cursor:pointer;padding:0}
+  .st button:hover{background:#3d2a9a;border-color:#ffe9a8}
+  .st button:active{transform:scale(.92)}
+  .st span{display:inline-block;min-width:34px;font-size:15px}
+  td.tot{font-weight:bold;color:#ffe9a8;font-size:16px}
+  .note{padding:8px 14px;color:#cdbdff;font-size:12px}
+</style>
+</head>
+<body>
+<div class="top">
+  <input id="q" type="search" placeholder="Search a Dreamer…" autocomplete="off">
+  <button id="ref" type="button">Refresh</button>
+</div>
+<div class="note">Click + to add points, − to take them back. Each click adds the points that action is worth. Changes save to the sheet instantly.</div>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left;padding-left:14px">Dreamer</th>
+      <th>Daily chat<small>+1</small></th>
+      <th>Shared post<small>+2</small></th>
+      <th>Activity<small>+10</small></th>
+      <th>Poll<small>+1</small></th>
+      <th>Reaction<small>+1</small></th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody id="rows"><tr><td colspan="7" style="padding:20px">Loading…</td></tr></tbody>
+</table>
+<script>
+  var data = null;
+
+  function load() {
+    google.script.run.withSuccessHandler(function (d) { data = d; draw(); })
+      .withFailureHandler(function (e) { document.getElementById('rows').innerHTML = '<tr><td colspan="7" style="padding:20px">Could not load: ' + e + '</td></tr>'; })
+      .getPanelData();
+  }
+
+  function total(p) { return p.vals.reduce(function (a, b) { return a + b; }, 0); }
+
+  function draw() {
+    var q = document.getElementById('q').value.trim().toLowerCase();
+    var tb = document.getElementById('rows');
+    tb.innerHTML = '';
+    data.people.forEach(function (p, pi) {
+      if (q && p.name.toLowerCase().indexOf(q) < 0) return;
+      var tr = document.createElement('tr');
+      var nm = document.createElement('td'); nm.className = 'nm'; nm.textContent = p.name; tr.appendChild(nm);
+      p.vals.forEach(function (v, ci) {
+        var td = document.createElement('td');
+        var box = document.createElement('div'); box.className = 'st';
+        var minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−';
+        var val = document.createElement('span'); val.id = 'v' + pi + '_' + ci; val.textContent = v;
+        var plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+';
+        minus.onclick = function () { bump(pi, ci, -1); };
+        plus.onclick = function () { bump(pi, ci, 1); };
+        box.appendChild(minus); box.appendChild(val); box.appendChild(plus);
+        td.appendChild(box); tr.appendChild(td);
+      });
+      var t = document.createElement('td'); t.className = 'tot'; t.id = 't' + pi; t.textContent = total(p); tr.appendChild(t);
+      tb.appendChild(tr);
+    });
+  }
+
+  function bump(pi, ci, dir) {
+    var p = data.people[pi];
+    var step = data.steps[ci];
+    // show the change right away, then confirm with the sheet
+    p.vals[ci] = Math.max(0, p.vals[ci] + dir * step);
+    document.getElementById('v' + pi + '_' + ci).textContent = p.vals[ci];
+    document.getElementById('t' + pi).textContent = total(p);
+    google.script.run.withSuccessHandler(function (r) {
+      p.vals[ci] = r.value;
+      var e = document.getElementById('v' + pi + '_' + ci); if (e) e.textContent = r.value;
+      var t = document.getElementById('t' + pi); if (t) t.textContent = r.total;
+    }).withFailureHandler(function (e) { alert('Could not save: ' + e); load(); })
+      .adjustPoints(p.row, ci, dir);
+  }
+
+  document.getElementById('q').addEventListener('input', function () { if (data) draw(); });
+  document.getElementById('ref').addEventListener('click', load);
+  load();
+</script>
+</body>
+</html>

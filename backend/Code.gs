@@ -12,10 +12,12 @@ const HEADERS = ['Timestamp', 'Cosplayer Name', 'Past Cosplay', 'Details', 'Face
 const COL = { STATUS: 9 };
 
 // ---- Ranking ("Points" tab) ----
-// Type the counts for each Dreamer in the Points tab. Points = count x weight.
+// Each column of the Points tab holds POINTS (not counts). Use the Dreamers > Points panel menu
+// to add points with + / - buttons: each click adds the points that action is worth.
 const POINTS_SHEET = 'Points';
 const WEIGHTS = { chat: 1, shares: 2, activities: 10, polls: 1, reactions: 1 };
-const POINT_HEADERS = ['Cosplayer Name', 'Daily chat days (1 pt)', 'Shared public posts (2 pts)', 'Face-to-face activities (10 pts)', 'Poll answers (1 pt)', 'Reactions (1 pt)', 'Total points'];
+const POINT_KEYS = ['chat', 'shares', 'activities', 'polls', 'reactions'];
+const POINT_HEADERS = ['Cosplayer Name', 'Daily chat (+1)', 'Shared public posts (+2)', 'Face-to-face activities (+10)', 'Poll answers (+1)', 'Reactions (+1)', 'Total points'];
 // Dreamers listed by hand on the website (config.js). Used to pre-fill the Points tab.
 const SEED_NAMES = ['Cheezy kei', 'Jett', 'Aerix Luxen', 'Yuichikaii', 'Redfyrr', 'Neko Hime', 'Alfie Pop', 'Salome Mayo', 'J.E.M.'];
 
@@ -53,8 +55,7 @@ function pointsSheet_() {
     sh.getRange(2, 1, uniq.length, 1).setValues(uniq.map(function (n) { return [n]; }));
     sh.getRange(2, 2, uniq.length, 5).setValue(0);
   }
-  const W = WEIGHTS;
-  sh.getRange('G2').setFormula('=ARRAYFORMULA(IF(A2:A="","",B2:B*' + W.chat + '+C2:C*' + W.shares + '+D2:D*' + W.activities + '+E2:E*' + W.polls + '+F2:F*' + W.reactions + '))');
+  fixPointsLayout_(sh);
   sh.setColumnWidth(1, 180);
   sh.setColumnWidths(2, 6, 130);
   return sh;
@@ -65,10 +66,58 @@ function ranking_() {
   return pointsSheet_().getDataRange().getValues().slice(1)
     .filter(function (r) { return String(r[0]).trim(); })
     .map(function (r) {
-      const o = { name: String(r[0]).trim(), chat: num(r[1]), shares: num(r[2]), activities: num(r[3]), polls: num(r[4]), reactions: num(r[5]) };
-      o.total = o.chat * WEIGHTS.chat + o.shares * WEIGHTS.shares + o.activities * WEIGHTS.activities + o.polls * WEIGHTS.polls + o.reactions * WEIGHTS.reactions;
-      return o;
+      const p = POINT_KEYS.map(function (k, i) { return num(r[i + 1]); });
+      // columns hold points; the website shows counts, so divide by what each action is worth
+      const c = function (i) { return Math.round(p[i] / WEIGHTS[POINT_KEYS[i]]); };
+      return { name: String(r[0]).trim(), chat: c(0), shares: c(1), activities: c(2), polls: c(3), reactions: c(4),
+               total: p.reduce(function (a, b) { return a + b; }, 0) };
     });
+}
+
+// Make sure headers and the Total column are right (safe to run any time).
+function fixPointsLayout_(sh) {
+  sh.getRange(1, 1, 1, POINT_HEADERS.length).setValues([POINT_HEADERS]).setFontWeight('bold').setBackground('#2a1458').setFontColor('#ffffff').setWrap(true);
+  sh.getRange('G2:G').clearContent();
+  sh.getRange('G2').setFormula('=ARRAYFORMULA(IF(A2:A="","",B2:B+C2:C+D2:D+E2:E+F2:F))');
+  sh.getRange('G2:G').setFontWeight('bold');
+}
+
+// ---- Points panel (menu: Dreamers > Points panel) ----
+function onOpen() {
+  SpreadsheetApp.getUi().createMenu('Dreamers').addItem('Points panel', 'openPointsPanel').addToUi();
+}
+
+function openPointsPanel() {
+  fixPointsLayout_(pointsSheet_());
+  const html = HtmlService.createHtmlOutputFromFile('Points').setWidth(980).setHeight(640);
+  SpreadsheetApp.getUi().showModelessDialog(html, 'Dreamers points');
+}
+
+function getPanelData() {
+  const rows = pointsSheet_().getDataRange().getValues();
+  const out = [];
+  for (let i = 1; i < rows.length; i++) {
+    const name = String(rows[i][0]).trim();
+    if (!name) continue;
+    const vals = POINT_KEYS.map(function (k, j) { return Number(rows[i][j + 1]) || 0; });
+    out.push({ row: i + 1, name: name, vals: vals });
+  }
+  return { people: out, steps: POINT_KEYS.map(function (k) { return WEIGHTS[k]; }) };
+}
+
+// dir is +1 or -1. Each click moves the column by what that action is worth.
+function adjustPoints(row, col, dir) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = pointsSheet_(), cell = sh.getRange(row, col + 2);
+    const v = Math.max(0, (Number(cell.getValue()) || 0) + (dir > 0 ? 1 : -1) * WEIGHTS[POINT_KEYS[col]]);
+    cell.setValue(v);
+    const all = sh.getRange(row, 2, 1, 5).getValues()[0];
+    return { value: v, total: all.reduce(function (a, b) { return a + (Number(b) || 0); }, 0) };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function folder_() {
