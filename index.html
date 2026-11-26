@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Quicksand:wght@400;500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -76,8 +76,8 @@
       <label>Cosplayer Name *
         <input name="name" required maxlength="80" autocomplete="nickname" placeholder="e.g. Hikari">
       </label>
-      <label>Past cosplay (character / series)
-        <input name="character" maxlength="120" placeholder="e.g. Nezuko Kamado — Demon Slayer">
+      <label>Past cosplay (characters / series)
+        <textarea name="character" rows="3" maxlength="400" placeholder="List your past cosplays, e.g.&#10;Nezuko Kamado — Demon Slayer&#10;Raiden Shogun — Genshin Impact"></textarea>
       </label>
       <label>About you *
         <textarea name="details" required maxlength="600" rows="4" placeholder="Tell us about yourself, how long you've cosplayed, favorite series…"></textarea>
@@ -103,9 +103,15 @@
 </main>
 
 <footer>
-  <a href="https://www.facebook.com/yumesanctuarydigos" target="_blank" rel="noopener noreferrer"><img src="yume-sanctuary-light.png" alt="Yume Sanctuary on Facebook" width="120" height="44"></a>
-  <button type="button" class="linkbtn" data-open="yume">About Yume Sanctuary</button>
-  <p>© <span id="yr"></span> Yume Sanctuary · Digos Cosplayers (Dreamers) · Non-profit community organization, Digos City</p>
+  <a class="flogo" href="https://www.facebook.com/yumesanctuarydigos" target="_blank" rel="noopener noreferrer"><img src="yume-sanctuary-light.png" alt="Yume Sanctuary on Facebook" width="130" height="48"></a>
+  <p class="fsub">A safe place to keep your dreams</p>
+  <nav class="flinks" aria-label="Footer">
+    <a href="#members">Dreamers</a>
+    <a href="#join">Join</a>
+    <a href="#about" data-open="yume">About Yume Sanctuary</a>
+    <a href="https://www.facebook.com/yumesanctuarydigos" target="_blank" rel="noopener noreferrer">Facebook</a>
+  </nav>
+  <p class="fcopy">© <span id="yr"></span> Yume Sanctuary · Digos Cosplayers (Dreamers)<br>Non-profit community organization · Digos City</p>
 </footer>
 
 <div id="yume" class="modal" role="dialog" aria-modal="true" aria-labelledby="yumeTitle" hidden>
@@ -291,7 +297,7 @@
   <button class="lbn next" aria-label="Next">›</button>
 </div>
 
-<script src="config.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="config.js?v=9"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>

@@ -66,7 +66,7 @@ function doPost(e) {
       urls.push(f.getUrl());
     });
 
-    sheet_().appendRow([new Date(), name, safe_(d.character, 120), details, fb, "'" + phone, urls.join('\n'), ids.join(','), 'Pending']);
+    sheet_().appendRow([new Date(), name, safe_(d.character, 400), details, fb, "'" + phone, urls.join('\n'), ids.join(','), 'Pending']);
     return json_({ ok: true });
   } catch (err) {
     return json_({ ok: false, error: String(err.message || err) });

@@ -237,3 +237,17 @@ footer{flex-wrap:wrap; text-align:center}
 .nav nav .navlink{font-family:"Quicksand",sans-serif; font-size:1rem; font-weight:400; background:none; border:0; border-radius:0; padding:0; color:var(--ink); opacity:.85}
 .nav nav .navlink:hover{opacity:1; color:var(--gold)}
 @media (max-width:900px){ .nav nav .navlink{padding:12px 6px} }
+
+/* ---------- footer ---------- */
+footer{flex-direction:column; gap:10px; margin-top:20px; padding:34px 16px 44px; border-top:1px solid var(--line); background:linear-gradient(180deg,transparent,rgba(7,4,24,.7))}
+.flogo img{display:block; height:auto; width:130px; opacity:.95}
+.fsub{margin:0; color:var(--gold); font-family:"Cinzel",serif; letter-spacing:.14em; font-size:.8rem; text-transform:uppercase}
+.flinks{display:flex; flex-wrap:wrap; justify-content:center; gap:6px 22px; margin:6px 0}
+.flinks a{color:var(--ink); opacity:.85; text-decoration:none; font-size:.95rem}
+.flinks a:hover{opacity:1; color:var(--gold)}
+.fcopy{margin:6px 0 0; font-size:.8rem; line-height:1.6; color:var(--muted); text-align:center}
+textarea[name=character]{resize:vertical; min-height:84px}
+
+.card .chr{white-space:pre-line}
+
+footer{padding-bottom:80px}
